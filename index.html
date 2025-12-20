@@ -409,7 +409,7 @@ pre{
 const codeEl=document.getElementById("code");
 const outEl=document.getElementById("out");
 
-/* Blob motion */
+/* Blob motion (UNCHANGED) */
 (()=>{
   const dots=[...document.querySelectorAll(".blob-dot")];
   const pts=dots.map(()=>({x:innerWidth/2,y:innerHeight/2}));
@@ -432,9 +432,25 @@ const outEl=document.getElementById("out");
   tick();
 })();
 
+/* ---------- Helpers ---------- */
+
 function esc(s){
   return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 }
+
+function parseResponse(t){
+  const lines=t.split("\n");
+  const d={};
+  for(const l of lines){
+    const i=l.indexOf(":");
+    if(i>0){
+      d[l.slice(0,i)] = l.slice(i+1);
+    }
+  }
+  return d;
+}
+
+/* ---------- Main actions ---------- */
 
 async function runTests(){
   if(!codeEl.value.trim()){
@@ -451,13 +467,81 @@ async function runTests(){
 }
 
 function render(t){
-  if(t.startsWith("STATUS:PASS")){
-    outEl.innerHTML=`<div class="result ok">✅ <b>PASS</b><br>Output matches exactly.</div>`;
-  }else if(t.startsWith("STATUS:COMPILE_ERROR")){
-    outEl.innerHTML=`<div class="result err">❌ <b>Compile error</b><pre>${esc(t)}</pre></div>`;
-  }else{
-    outEl.innerHTML=`<div class="result warn">⚠️ <pre>${esc(t)}</pre></div>`;
+  const d=parseResponse(t);
+
+  /* PASS */
+  if(d.STATUS==="PASS"){
+    outEl.innerHTML=`
+      <div class="result ok">
+        🎉 <b>PASS</b><br>
+        Your output matches the reference exactly.
+      </div>`;
+    return;
   }
+
+  /* COMPILE ERROR */
+  if(d.STATUS==="COMPILE_ERROR"){
+    outEl.innerHTML=`
+      <div class="result err">
+        ❌ <b>Compilation error</b>
+        <pre>${esc(t)}</pre>
+        <div class="info-desc" style="margin-top:8px">
+          Fix Java errors before worrying about formatting.
+        </div>
+      </div>`;
+    return;
+  }
+
+  /* LINE COUNT */
+  if(d.STATUS==="LINE_COUNT"){
+    outEl.innerHTML=`
+      <div class="result warn">
+        📏 <b>Line count mismatch</b><br>
+        Expected <b>${d.EXPECTED}</b> lines, but got <b>${d.GOT}</b>.
+        <div class="info-desc" style="margin-top:8px">
+          This usually means a loop ran too many or too few times.
+          Check loop bounds involving <code>SIZE</code>.
+        </div>
+      </div>`;
+    return;
+  }
+
+  /* MISMATCH */
+  if(d.STATUS==="MISMATCH"){
+    const label={
+      SPACING:"Spacing error",
+      INDENTATION:"Indentation error",
+      LENGTH:"Line length error",
+      CONTENT:"Symbol/content mismatch"
+    }[d.TYPE] || "Output mismatch";
+
+    outEl.innerHTML=`
+      <div class="result warn">
+        ❌ <b>${label}</b><br>
+        <span style="color:var(--muted)">
+          First mismatch on line <b>${d.LINE}</b>
+        </span>
+
+        <table>
+          <tr>
+            <th>Expected</th>
+            <td><pre>${esc(d.EXPECTED)}</pre></td>
+          </tr>
+          <tr>
+            <th>Your output</th>
+            <td><pre>${esc(d.GOT)}</pre></td>
+          </tr>
+        </table>
+
+        <div class="info-desc" style="margin-top:8px">
+          💡 ${esc(d.HINT)}
+        </div>
+      </div>`;
+    return;
+  }
+
+  /* FALLBACK */
+  outEl.innerHTML=`<div class="result warn"><pre>${esc(t)}</pre></div>`;
 }
 
 function clearAll(){
@@ -472,6 +556,7 @@ document.addEventListener("keydown",e=>{
   }
 });
 </script>
+
 
 </body>
 </html>
