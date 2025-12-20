@@ -84,10 +84,20 @@ def run():
         reference = load_reference(size)
 
         if len(student) != len(reference):
+            hint = "A structural section of the Space Needle did not print."
+
+            if student and reference:
+                if reference[-1].startswith("{") and not student[-1].startswith("{"):
+                    hint = (
+                        "The output ends before the final window band. "
+                        "This means the last structural section never printed."
+                    )
+
             return Response(
                 "STATUS:LINE_COUNT\n"
                 f"EXPECTED_COUNT:{len(reference)}\n"
                 f"GOT_COUNT:{len(student)}\n"
+                f"HINT:{hint}\n"
                 "EXPECTED_OUTPUT:\n" + "\n".join(reference) + "\n"
                 "GOT_OUTPUT:\n" + "\n".join(student),
                 200
@@ -96,15 +106,16 @@ def run():
         for i, (a, b) in enumerate(zip(student, reference), start=1):
             if a != b:
                 hint = (
-                    "Indentation error" if a.lstrip() == b.lstrip()
-                    else "Spacing or symbol mismatch"
+                    "Indentation differs. Check how many spaces are printed."
+                    if a.lstrip() == b.lstrip()
+                    else "Characters or spacing differ on this line."
                 )
                 return Response(
                     "STATUS:MISMATCH\n"
                     f"LINE:{i}\n"
                     f"EXPECTED:{b}\n"
                     f"GOT:{a}\n"
-                    f"HINT:{hint}. Check loop bounds and spacing.",
+                    f"HINT:{hint}",
                     200
                 )
 
