@@ -1,190 +1,195 @@
-/*
- * Course: TCSS142 - Programming Principles
- * File Name: Project1.java
- * Assignment: Project 1
- * Due Date: Oct/24/2025
- * Instructor: Dr. Liu
- */
+import java.io.*;
+import java.util.*;
 
-public class Project1_reference{
+public class Project1_reference {
 
-/**
- * This program draws an ASCI image of the Space Needle.
- * The {@value #SIZE} sets the scale of the output image.
- *
- * @author Faiz Ahmed
- * @version 10/14/2025
- *
- */
+    /* ================== CONFIG ================== */
 
-    /**
-     * The user defined scale factor for controling the size of the figure.
-     * <p>
-     *
-     */
-    public static final int SIZE = 2;
+    // Turn on to see every line comparison
+    private static final boolean DEBUG = true;
 
+    /* ================== MAIN ================== */
 
-    /**
-     * This is the entry point of the program
-     *
-     */
-    public static final void main (String[] args){
+    public static void main(String[] args) throws Exception {
+        System.out.println("=== TCSS 142 · Project 1 TA Tester ===\n");
 
-        //The complex figure is composed of multiple parts, each of which is drawn by the following methods
+        // Force compilation to avoid stale .class files (CRITICAL)
+        forceCompile();
 
-        drawNeedle();  // draw the spire
-
-        drawTopSaucer();
-
-        drawWindows(); // draws the windows
-
-        drawBottomSaucer();
-
-        drawNeedle(); // draw the support structure
-
-        drawPipe();
-
-        drawTopSaucer();
-
-        drawWindows(); // dreaw the foundation
-
-    }
-
-    /**
-     * Outputs the spire of the Space Needle.
-     * Can also be used for the support structure.
-     */
-    public static void drawNeedle(){
-
-        // counting the number of lines
-        for (int i = 1; i <= SIZE; i++){
-
-            // counting and printing the number of empty spaces
-            for(int j = 1; j<= 3 * SIZE; j++){
-
-                System.out.print(" ");
-            }
-            System.out.print("/\\");
-            System.out.println();
-        }
-    }
-
-
-    /**
-     * Outputs the top saucer of the Space Needle.
-     * Can also be used for the base structure.
-     */
-    public static void drawTopSaucer(){
-
-        //loop through the number of lines
-        for (int i = 1; i <= SIZE; i++){
-
-            //counts and prints the number of empty spaces to the right
-            for(int j = 1; j<= (-3 * i + 3 * SIZE); j++){
-
-                System.out.print(" ");
-            }
-
-            System.out.print("__/");
-
-            //counts and prints the number of underscores to the right
-            for(int k = 1; k <= (3 * i -3); k++){
-                System.out.print("_");
-            }
-
-            System.out.print("/\\");
-
-            //counts and prints the number of underscores to the left
-            for(int k = 1; k <= (3 * i -3); k++){
-                System.out.print("_");
-            }
-
-            System.out.print("\\__");
-
-            System.out.println();
-        }
-    }
-
-
-
-    /**
-     * Outputs the windows section of the Space Needle.
-     * Can also be used for the fundation of the figure.
-     */
-
-    public static void drawWindows(){
-
-        System.out.print("{");
-
-        // counts and prints the number of []
-        for(int i = 1; i <= 3 * SIZE; i++){
-            System.out.print("[]");
+        int size = detectSize();
+        if (size == -1) {
+            System.out.println("❌ Could not detect SIZE constant in Project1.java");
+            return;
         }
 
-        System.out.println("}");
-    }
+        List<String> expected = loadReference(size);
+        List<String> actual = runStudent();
 
-
-    /**
-     * Outputs the botom saucer of the Space Needle.
-     *
-     */
-    public static void drawBottomSaucer(){
-
-        //loops through the number of lines
-        for(int i = 1; i <= SIZE; i++){
-
-            // counts and prints the number of empty spaces
-            for(int j = 1; j <= (2 * i - 2); j++){
-
-                System.out.print(" ");
-
-            }
-
-            System.out.print("\\_");
-
-            // counts and prints the number of "()"
-
-            for(int j = 1; j <= (-2 * i + 3 * SIZE + 1); j++){
-
-                System.out.print("()");
-
-            }
-
-            System.out.print("_/");
-
-            System.out.println();
+        if (expected.isEmpty()) {
+            System.out.println("❌ No reference output found for SIZE = " + size);
+            return;
         }
+
+        if (actual.size() != expected.size()) {
+            reportLineCount(size, expected, actual);
+            return;
+        }
+
+        for (int i = 0; i < expected.size(); i++) {
+            if (DEBUG) {
+                System.out.printf(
+                        "[DEBUG] Line %2d | expected=%s | actual=%s%n",
+                        i + 1,
+                        showSpaces(expected.get(i)),
+                        showSpaces(actual.get(i))
+                );
+            }
+
+            if (!expected.get(i).equals(actual.get(i))) {
+                reportMismatch(size, i + 1, expected.get(i), actual.get(i));
+                return;
+            }
+        }
+
+        System.out.println("✅ PASS (SIZE = " + size + ")");
     }
 
-    /**
-     * Outputs the column of the Space Needle.
-     *
-     */
+    /* ================== EXECUTION ================== */
 
-    public static void drawPipe(){
+    private static void forceCompile() throws Exception {
+        Process compile = new ProcessBuilder("javac", "Project1.java")
+                .redirectErrorStream(true)
+                .start();
 
-        // counts the number of blocks
-        for (int i = 1; i <= SIZE; i ++){
+        compile.waitFor();
+    }
 
-            // counts the number of lines in each block
-            for (int j = 1; j <= 4; j++){
+    private static List<String> runStudent() throws Exception {
+        Process p = new ProcessBuilder("java", "Project1")
+                .redirectErrorStream(true)
+                .start();
 
-                //Counts the number of empty spaces
-                for (int m = 1; m <= (3 * SIZE - 3); m++) {
+        List<String> out = new ArrayList<>();
+        try (BufferedReader br =
+                     new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                out.add(rstrip(line));
+            }
+        }
+        return out;
+    }
 
-                    System.out.print(" ");
+    private static int detectSize() throws Exception {
+        try (Scanner sc = new Scanner(new File("Project1.java"))) {
+            while (sc.hasNextLine()) {
+                String line = sc.nextLine();
+                if (line.contains("static final int SIZE")) {
+                    return Integer.parseInt(line.replaceAll("\\D+", ""));
+                }
+            }
+        }
+        return -1;
+    }
+
+    /* ================== REFERENCE LOADING ================== */
+
+    private static List<String> loadReference(int size) throws Exception {
+        List<String> ref = new ArrayList<>();
+        boolean active = false;
+
+        File f = new File("SpaceNeedle.txt");
+        if (!f.exists()) {
+            System.out.println("❌ Missing SpaceNeedle.txt");
+            System.out.println("Place SpaceNeedle.txt in the same directory as the tester.");
+            System.exit(1);
+        }
+
+        try (Scanner sc = new Scanner(f)) {
+            while (sc.hasNextLine()) {
+                String line = sc.nextLine();
+
+                if (line.trim().equals("SIZE = " + size)) {
+                    active = true;
+                    continue;
                 }
 
-                System.out.print("|\"\"\\/\"\"|");
-                System.out.println();
+                if (active && line.trim().startsWith("SIZE =")) {
+                    break;
+                }
 
+                if (active) {
+                    String trimmed = rstrip(line);
+
+                    // 🔧 CRITICAL FIX: ignore blank lines
+                    if (!trimmed.isEmpty()) {
+                        ref.add(trimmed);
+                    }
+                }
             }
+        }
+
+        return ref;
+    }
+
+    /* ================== ERROR REPORTING ================== */
+
+    private static void reportLineCount(int size,
+                                        List<String> expected,
+                                        List<String> actual) {
+
+        System.out.println("❌ LINE COUNT MISMATCH (SIZE = " + size + ")");
+        System.out.println("Expected: " + expected.size());
+        System.out.println("Actual:   " + actual.size());
+
+        System.out.println("\n--- Expected (last lines) ---");
+        printTail(expected);
+
+        System.out.println("\n--- Actual (last lines) ---");
+        printTail(actual);
+
+        System.out.println("\n💡 Likely causes:");
+        System.out.println("• A structural section is missing or duplicated");
+        System.out.println("• A loop ran too many or too few times");
+        System.out.println("• Method call order in main() is incorrect");
+        System.out.println("• Beam section must be exactly 4 × SIZE lines");
+    }
+
+    private static void reportMismatch(int size,
+                                       int line,
+                                       String exp,
+                                       String got) {
+
+        System.out.println("❌ OUTPUT MISMATCH (SIZE = " + size + ")");
+        System.out.println("First difference at line " + line);
+
+        System.out.println("\nExpected:");
+        System.out.println(showSpaces(exp));
+
+        System.out.println("\nActual:");
+        System.out.println(showSpaces(got));
+
+        System.out.println("\n💡 Likely issue:");
+        if (exp.stripLeading().equals(got.stripLeading())) {
+            System.out.println("• Indentation mismatch (wrong number of spaces)");
+        } else {
+            System.out.println("• Characters or structure differ");
         }
     }
 
+    /* ================== UTILITIES ================== */
 
+    private static void printTail(List<String> lines) {
+        for (int i = Math.max(0, lines.size() - 6); i < lines.size(); i++) {
+            System.out.println(showSpaces(lines.get(i)));
+        }
+    }
 
+    private static String showSpaces(String s) {
+        return s.replace(" ", "·");
+    }
 
+    private static String rstrip(String s) {
+        return s.replaceAll("\\s+$", "");
+    }
 }
