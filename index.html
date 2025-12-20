@@ -406,6 +406,36 @@ kbd{
   pointer-events:none;
   z-index: 70;
 }
+/* =========================
+   Project 1 Tester Results
+   ========================= */
+.result{
+  border-radius: 16px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.12);
+}
+.resultTitle{
+  font-weight: 800;
+  letter-spacing: .04em;
+  margin-bottom: 6px;
+}
+.resultText{
+  opacity: .92;
+  margin-bottom: 10px;
+}
+.result.ok{
+  background: rgba(34,197,94,.12);
+  border-color: rgba(34,197,94,.35);
+}
+.result.warn{
+  background: rgba(251,191,36,.10);
+  border-color: rgba(251,191,36,.35);
+}
+.result.err{
+  background: rgba(251,113,133,.10);
+  border-color: rgba(251,113,133,.35);
+}
+
 </style>
 </head>
 
@@ -654,19 +684,132 @@ async function runTests(){
   renderResult(text);
   runBtn.disabled = false;
 }
+function showSpaces(s){
+  if (s === "") return "<span style='opacity:.6'>(empty line)</span>";
+  return escapeHtml(s).replace(/ /g, "·");
+}
 
-function renderResult(t){
-  // Default output fallback
-  const raw = t || "";
+function renderResult(raw){
+  raw = raw || "";
+
+  // PASS
   if (raw.startsWith("STATUS:PASS")){
     setStatus("ok","PASS");
-    outEl.innerHTML =
-      "✅ All checks passed.\n\n" +
-      "Your Space Needle output matches exactly.\n";
+    outEl.innerHTML = `
+      <div class="result ok">
+        <div class="resultTitle">✅ PASS</div>
+        <div class="resultText">
+          Your Space Needle output matches the official reference exactly.
+        </div>
+      </div>
+    `;
     toast("PASS");
     confettiBurst();
     return;
   }
+
+  // GENERIC ERROR
+  if (raw.startsWith("STATUS:ERROR")){
+    setStatus("err","ERROR");
+    const msg = raw.match(/MESSAGE:(.*)/)?.[1] ?? "Error";
+    outEl.innerHTML = `
+      <div class="result err">
+        <div class="resultTitle">❌ ERROR</div>
+        <div class="resultText">${escapeHtml(msg)}</div>
+      </div>
+    `;
+    toast("Fix the error");
+    return;
+  }
+
+  // COMPILE ERROR
+  if (raw.startsWith("STATUS:COMPILE_ERROR")){
+    setStatus("err","COMPILE");
+    const details = raw.replace("STATUS:COMPILE_ERROR\nDETAILS:\n","");
+    outEl.innerHTML = `
+      <div class="result err">
+        <div class="resultTitle">❌ COMPILATION FAILED</div>
+        <div class="resultText">Fix the errors below and try again.</div>
+        <pre>${escapeHtml(details)}</pre>
+      </div>
+    `;
+    toast("Compile failed");
+    return;
+  }
+
+  // LINE COUNT
+  if (raw.startsWith("STATUS:LINE_COUNT")){
+    setStatus("warn","MISMATCH");
+    const exp = raw.match(/EXPECTED:(\d+)/)?.[1];
+    const got = raw.match(/GOT:(\d+)/)?.[1];
+    outEl.innerHTML = `
+      <div class="result warn">
+        <div class="resultTitle">⚠️ LINE COUNT MISMATCH</div>
+        <div class="resultText">
+          Expected <b>${exp}</b> lines, but your program printed <b>${got}</b>.
+        </div>
+        <div class="hint">
+          Hint: check loop bounds and how many times each section prints.
+        </div>
+      </div>
+    `;
+    toast("Line count mismatch");
+    return;
+  }
+
+  // OUTPUT MISMATCH
+  if (raw.startsWith("STATUS:MISMATCH")){
+    setStatus("warn","MISMATCH");
+    const line = raw.match(/LINE:(\d+)/)?.[1];
+    const expected = raw.match(/EXPECTED:(.*)/)?.[1] ?? "";
+    const got = raw.match(/GOT:(.*)/)?.[1] ?? "";
+
+    outEl.innerHTML = `
+      <div class="result warn">
+        <div class="resultTitle">⚠️ MISMATCH AT LINE ${line}</div>
+        <div class="resultText">
+          Compare the two lines below. Spacing matters.
+        </div>
+
+        <table>
+          <tr>
+            <th>Expected</th>
+            <td class="mono">${showSpaces(expected)}</td>
+          </tr>
+          <tr>
+            <th>Your output</th>
+            <td class="mono">${showSpaces(got)}</td>
+          </tr>
+        </table>
+
+        <div class="hint">
+          Tip: Leading spaces and repeated characters must match exactly.
+        </div>
+      </div>
+    `;
+    toast(`Mismatch line ${line}`);
+    return;
+  }
+
+  // TIMEOUT
+  if (raw.startsWith("STATUS:TIMEOUT")){
+    setStatus("err","TIMEOUT");
+    outEl.innerHTML = `
+      <div class="result err">
+        <div class="resultTitle">⏱️ TIMEOUT</div>
+        <div class="resultText">
+          Your program ran too long. Check for infinite loops.
+        </div>
+      </div>
+    `;
+    toast("Timeout");
+    return;
+  }
+
+  // FALLBACK
+  setStatus("warn","UNKNOWN");
+  outEl.textContent = raw;
+}
 
   if (raw.startsWith("STATUS:ERROR")){
     setStatus("err","ERROR");
