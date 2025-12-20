@@ -2,131 +2,174 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>TCSS 142 · Project 1 Tester</title>
+<title>TCSS 142 · Project 1 Strict Tester</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
 :root{
-  --bg:#02040a;
-  --glass:rgba(17,24,39,.75);
-  --border:rgba(148,163,184,.35);
-  --text:#e5e7eb;
-  --muted:#9ca3af;
+  --bg:
+    radial-gradient(circle at 15% 20%, #1b3a6f 0%, transparent 40%),
+    radial-gradient(circle at 85% 0%, #4c1d95 0%, transparent 45%),
+    radial-gradient(circle at 50% 100%, #065f46 0%, transparent 45%),
+    #020617;
 
-  --ok:#22c55e;
-  --warn:#fbbf24;
-  --err:#fb7185;
+  --card: rgba(17,24,39,.88);
+  --border: rgba(148,163,184,.35);
+  --text: #e5e7eb;
+  --muted: #9ca3af;
 
-  --shadow:0 30px 90px rgba(0,0,0,.8);
+  --green:#22c55e;
+  --blue:#38bdf8;
+  --purple:#a855f7;
+  --yellow:#fbbf24;
+  --red:#fb7185;
+
+  --shadow: 0 25px 70px rgba(0,0,0,.75);
 }
 
-/* RESET */
 *{box-sizing:border-box}
-html,body{height:100%}
+
 body{
   margin:0;
+  min-height:100vh;
   font-family:Inter,system-ui,sans-serif;
   color:var(--text);
-  background:
-    radial-gradient(circle at 20% 10%, rgba(56,189,248,.20), transparent 45%),
-    radial-gradient(circle at 80% 0%, rgba(168,85,247,.22), transparent 50%),
-    radial-gradient(circle at 50% 100%, rgba(34,197,94,.20), transparent 55%),
-    var(--bg);
-  overflow-x:hidden;
+  background:var(--bg);
 }
 
-/* DVD AMBIENT */
-.dvd{
+/* DVD background */
+.dvd-layer{
   position:fixed;
   inset:0;
   pointer-events:none;
-  opacity:.15;
-  z-index:-1;
+  z-index:0;
 }
 .dvd-x{
   position:absolute;
-  width:140px;
-  animation:dvd-x 14s linear infinite alternate;
+  width:110px;
+  height:66px;
+  animation:dvd-x 12s linear infinite alternate;
 }
 .dvd-y{
-  animation:dvd-y 9s linear infinite alternate;
+  width:110px;
+  height:66px;
+  animation:dvd-y 8s linear infinite alternate;
 }
 @keyframes dvd-x{
   from{transform:translateX(0)}
-  to{transform:translateX(calc(100vw - 140px))}
+  to{transform:translateX(calc(100vw - 110px))}
 }
 @keyframes dvd-y{
   from{transform:translateY(0)}
-  to{transform:translateY(calc(100vh - 80px))}
+  to{transform:translateY(calc(100vh - 66px))}
 }
 
-/* HERO */
-.hero-wrap{
-  max-width:1100px;
-  margin:0 auto;
-  padding:40px 20px 10px;
+/* Layout */
+.container{
+  max-width:1250px;
+  margin:28px auto;
+  padding:16px;
+  position:relative;
+  z-index:1;
 }
-.hero{
-  background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(56,189,248,.12),rgba(168,85,247,.15));
-  border-radius:28px;
-  padding:34px;
-  box-shadow:var(--shadow);
-  border:1px solid var(--border);
-  backdrop-filter:blur(22px);
+
+/* Header */
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  margin-bottom:18px;
 }
-.hero h1{
+.header h1{
   margin:0;
-  font-size:40px;
-  font-weight:800;
-  letter-spacing:.02em;
+  font-size:34px;
+  font-weight:700;
 }
-.hero p{
-  margin:10px 0 0;
+.header p{
+  margin:6px 0 0;
   color:var(--muted);
-  font-size:15px;
-  max-width:720px;
+  max-width:680px;
+  font-size:14px;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:600;
+  background:linear-gradient(90deg,#22c55e,#38bdf8);
+  color:#020617;
+  margin-bottom:8px;
+}
+.meta{
+  text-align:right;
+  font-size:12px;
+  color:var(--muted);
 }
 
-/* MAIN */
-.main{
-  max-width:1100px;
-  margin:24px auto;
-  padding:0 20px 40px;
+/* Cards */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:18px;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(24px);
 }
 
 .grid{
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:20px;
+  grid-template-columns:420px 1fr;
+  gap:18px;
 }
-@media(max-width:900px){
+@media(max-width:1000px){
   .grid{grid-template-columns:1fr}
 }
 
-/* GLASS CARDS */
-.card{
-  background:var(--glass);
-  border:1px solid var(--border);
-  border-radius:22px;
-  padding:20px;
-  box-shadow:var(--shadow);
-  backdrop-filter:blur(22px);
+/* How-to */
+.howto h3{
+  margin-top:0;
 }
-
-.card h3{
-  margin:0 0 10px;
-  font-size:18px;
-  font-weight:700;
+.howto li{
+  margin-bottom:8px;
+  font-size:14px;
 }
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:12px;
+  margin-top:6px;
+}
+.pill.green{background:rgba(34,197,94,.15);color:var(--green)}
+.pill.blue{background:rgba(56,189,248,.15);color:var(--blue)}
+.pill.purple{background:rgba(168,85,247,.15);color:var(--purple)}
 
-/* EDITOR */
+/* Editor */
+.editor-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+}
+.status{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:12px;
+  color:var(--green);
+}
 textarea{
   width:100%;
-  height:320px;
+  height:260px;
   background:#020617;
   color:var(--text);
   border:1px solid var(--border);
@@ -137,104 +180,124 @@ textarea{
   resize:vertical;
 }
 
-/* BUTTONS */
+/* Buttons */
 .actions{
   display:flex;
   gap:10px;
-  margin-top:12px;
+  margin-top:10px;
+  flex-wrap:wrap;
 }
 button{
   border:none;
   border-radius:999px;
-  padding:10px 22px;
-  font-weight:700;
+  padding:8px 18px;
+  font-size:13px;
   cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
 }
-.run{
-  background:linear-gradient(135deg,#22c55e,#38bdf8,#a855f7);
-  color:#020617;
-}
-.clear{
-  background:transparent;
-  border:1px dashed var(--border);
-  color:var(--muted);
-}
+.run{background:linear-gradient(90deg,#22c55e,#38bdf8);color:#020617}
+.clear{background:#374151;color:var(--text)}
+.secondary{background:#020617;color:var(--text);border:1px dashed var(--border)}
 
-/* RESULTS */
+/* Output */
+.output{
+  margin-top:16px;
+}
 .result{
   border-radius:16px;
   padding:16px;
-  border:1px solid transparent;
+  margin-bottom:10px;
 }
-.result.ok{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.45)}
-.result.warn{background:rgba(251,191,36,.15);border-color:rgba(251,191,36,.45)}
-.result.err{background:rgba(248,113,133,.18);border-color:rgba(248,113,133,.45)}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px;
-}
-th,td{
-  border:1px solid var(--border);
-  padding:8px;
+.ok{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4)}
+.warn{background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.4)}
+.err{background:rgba(251,113,133,.15);border:1px solid rgba(251,113,133,.4)}
+pre{
+  white-space:pre;
+  overflow:auto;
   font-family:"JetBrains Mono",monospace;
   font-size:12px;
 }
-th{color:var(--muted);width:140px}
 
-pre{
-  background:#020617;
-  padding:12px;
-  border-radius:12px;
-  overflow:auto;
-}
-
-.hint{
-  margin-top:8px;
+/* Footer */
+.footer{
+  margin-top:20px;
   font-size:12px;
   color:var(--muted);
+  text-align:center;
 }
 </style>
 </head>
 
 <body>
 
-<!-- DVD -->
-<div class="dvd">
+<div class="dvd-layer">
   <div class="dvd-x">
     <img class="dvd-y" src="https://vgmoose.bdns.dev/dvd_logo.png" alt="dvd">
   </div>
 </div>
 
-<div class="hero-wrap">
-  <div class="hero">
-    <h1>TCSS 142 · Project 1</h1>
-    <p>
-      Space Needle ASCII Tester. Paste <b>Project1.java</b> below.
-      Your output is compared line-by-line against the official reference.
-    </p>
-  </div>
-</div>
+<div class="container">
 
-<div class="main">
+  <div class="header">
+    <div>
+      <div class="badge">🗼 SPACE NEEDLE TESTER</div>
+      <h1>TCSS 142 · Project 1 Strict Tester</h1>
+      <p>
+        Paste your full <b>Project1.java</b> and run the official strict tests.
+        This compares your output line-by-line against the reference used for grading.
+      </p>
+    </div>
+    <div class="meta">
+      Class: TCSS 142 Programming Principles<br>
+      Instructor: Prof. Xutong Liu<br>
+      Built & maintained by TA Faiz Ahmed
+    </div>
+  </div>
+
   <div class="grid">
 
-    <div class="card">
-      <h3>Project1.java</h3>
-      <textarea id="code" placeholder="// Paste Project1.java here"></textarea>
-      <div class="actions">
-        <button class="run" onclick="runTests()">Run tests</button>
-        <button class="clear" onclick="clearAll()">Clear</button>
-      </div>
+    <!-- HOW TO -->
+    <div class="card howto">
+      <h3>🧭 How to use this tester</h3>
+      <ol>
+        <li>Paste the entire contents of <b>Project1.java</b>.</li>
+        <li>Ensure the file declares <code>public class Project1</code>.</li>
+        <li>Run tests and fix the <b>first mismatch</b> shown.</li>
+        <li>Spacing and line count must match exactly.</li>
+      </ol>
+
+      <div class="pill green">✅ Checks spacing & line count</div><br>
+      <div class="pill blue">🔎 Reports first mismatch only</div><br>
+      <div class="pill purple">⚠️ Matches Canvas grading</div>
     </div>
 
+    <!-- EDITOR -->
     <div class="card">
-      <h3>Tester Output</h3>
-      <div id="out">(waiting)</div>
+      <div class="editor-header">
+        <h3>📄 Project1.java</h3>
+        <div class="status">● Ready to run</div>
+      </div>
+
+      <textarea id="code" placeholder="// Paste your full Project1.java here"></textarea>
+
+      <div class="actions">
+        <button class="run" onclick="runTests()">▶ Run tests</button>
+        <button class="clear" onclick="clearAll()">🧹 Clear input</button>
+        <button class="secondary">⌨ Ctrl + Enter</button>
+      </div>
+
+      <div class="output" id="out">(waiting…)</div>
     </div>
 
   </div>
+
+  <div class="footer">
+    This page runs your code on the server using the official Project 1 reference.
+    Passing here does not guarantee Canvas credit, but failures here will fail Canvas.
+  </div>
+
 </div>
 
 <script>
@@ -244,57 +307,32 @@ const outEl=document.getElementById("out");
 function esc(s){
   return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 }
-function showSpaces(s){
-  if(s==="")return"(empty)";
-  return esc(s).replace(/ /g,"·");
-}
 
 async function runTests(){
   if(!codeEl.value.trim()){
     outEl.textContent="Paste Project1.java first.";
     return;
   }
-  outEl.textContent="Running tests...";
-  try{
-    const r=await fetch("/run",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({code:codeEl.value})
-    });
-    render(await r.text());
-  }catch(e){
-    outEl.textContent="Network error.";
-  }
+  outEl.innerHTML="Running tests…";
+  const r=await fetch("/run",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({code:codeEl.value})
+  });
+  render(await r.text());
 }
 
 function render(t){
   if(t.startsWith("STATUS:PASS")){
-    outEl.innerHTML=`<div class="result ok"><b>✅ PASS</b><br>Output matches exactly.</div>`;
+    outEl.innerHTML=`<div class="result ok">✅ <b>PASS</b><br>Output matches exactly.</div>`;
     return;
   }
   if(t.startsWith("STATUS:COMPILE_ERROR")){
-    outEl.innerHTML=`<div class="result err"><b>❌ Compilation error</b><pre>${esc(t)}</pre></div>`;
+    outEl.innerHTML=`<div class="result err">❌ <b>Compilation error</b><pre>${esc(t)}</pre></div>`;
     return;
   }
-  if(t.startsWith("STATUS:LINE_COUNT")){
-    const e=t.match(/EXPECTED:(\d+)/)[1];
-    const g=t.match(/GOT:(\d+)/)[1];
-    outEl.innerHTML=`<div class="result warn"><b>⚠️ Line count mismatch</b><br>Expected ${e}, got ${g}</div>`;
-    return;
-  }
-  if(t.startsWith("STATUS:MISMATCH")){
-    const l=t.match(/LINE:(\d+)/)[1];
-    const e=t.match(/EXPECTED:(.*)/)[1];
-    const g=t.match(/GOT:(.*)/)[1];
-    outEl.innerHTML=`
-      <div class="result warn">
-        <b>⚠️ Mismatch at line ${l}</b>
-        <table>
-          <tr><th>Expected</th><td>${showSpaces(e)}</td></tr>
-          <tr><th>Your output</th><td>${showSpaces(g)}</td></tr>
-        </table>
-        <div class="hint">Spacing must match exactly.</div>
-      </div>`;
+  if(t.startsWith("STATUS:MISMATCH")||t.startsWith("STATUS:LINE_COUNT")){
+    outEl.innerHTML=`<div class="result warn">⚠️ <b>Mismatch</b><pre>${esc(t)}</pre></div>`;
     return;
   }
   outEl.textContent=t;
@@ -302,8 +340,13 @@ function render(t){
 
 function clearAll(){
   codeEl.value="";
-  outEl.textContent="(waiting)";
+  outEl.textContent="(waiting…)";
 }
+
+document.addEventListener("keydown",e=>{
+  const meta=e.ctrlKey||e.metaKey;
+  if(meta&&e.key==="Enter"){e.preventDefault();runTests();}
+});
 </script>
 
 </body>
