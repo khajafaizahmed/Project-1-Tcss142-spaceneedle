@@ -1,15 +1,15 @@
-FROM python:3.11-slim-bookworm
+FROM python:3.11-slim
 
-# Install Java 17 (available on bookworm)
+# Install Java
 RUN apt-get update && \
     apt-get install -y openjdk-17-jdk && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get clean
 
 WORKDIR /app
 
 COPY . .
 
-RUN pip install flask
+RUN pip install --no-cache-dir flask
 
 ENV PORT=8080
 
