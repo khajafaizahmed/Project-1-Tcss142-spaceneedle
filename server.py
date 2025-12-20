@@ -8,7 +8,7 @@ RUN_TIMEOUT = 30
 REFERENCE_DIR = "reference"
 REFERENCE_TXT = "SpaceNeedle.txt"
 
-# Sizes we validate
+# Sizes to validate
 TEST_SIZES = [1, 2, 3, 4]
 
 
@@ -21,25 +21,25 @@ def cors(resp):
 
 
 # ------------------------------------------------------------
-# Normalization rules:
-#   - Ignore empty lines
-#   - Ignore ALL spaces
-#   - Compare symbols only
+# NORMALIZATION RULES
+#  • ignore blank lines
+#  • ignore ALL spaces
+#  • compare symbols only
 # ------------------------------------------------------------
 def normalize(text):
-    lines = []
+    out = []
     for line in text.replace("\r\n", "\n").split("\n"):
-        stripped = line.strip()
-        if stripped == "":
+        line = line.strip()
+        if line == "":
             continue
-        lines.append(stripped.replace(" ", ""))
-    return lines
+        out.append(line.replace(" ", ""))
+    return out
 
 
 def load_reference(size):
     path = os.path.join(REFERENCE_DIR, REFERENCE_TXT)
     if not os.path.exists(path):
-        raise RuntimeError("Reference file SpaceNeedle.txt not found")
+        raise RuntimeError("SpaceNeedle.txt not found")
 
     lines = open(path).read().splitlines()
 
@@ -48,7 +48,7 @@ def load_reference(size):
     for line in lines:
         if line.strip() == f"SIZE = {size}":
             active = True
-            block = []
+            block.clear()
             continue
         if active and line.strip().startswith("SIZE ="):
             break
@@ -56,12 +56,12 @@ def load_reference(size):
             clean = line.strip()
             if clean != "":
                 block.append(clean.replace(" ", ""))
+
     return block
 
 
+# 🔧 SAFE SIZE REWRITE (NO REGEX CRASHES)
 def rewrite_size(code, size):
-    # IMPORTANT FIX:
-    # Use a lambda so regex group references NEVER break
     return re.sub(
         r"(public\s+static\s+final\s+int\s+SIZE\s*=\s*)\d+",
         lambda m: m.group(1) + str(size),
@@ -88,10 +88,9 @@ def run():
 
     try:
         for size in TEST_SIZES:
-            # Rewrite SIZE safely
             modified = rewrite_size(code, size)
 
-            # Strip package if present
+            # Remove package if student added one
             modified = re.sub(
                 r'^\s*package\s+.*?;\s*',
                 '',
@@ -110,9 +109,11 @@ def run():
                 text=True,
                 timeout=RUN_TIMEOUT
             )
+
             if compile_proc.returncode != 0:
                 return Response(
-                    "STATUS:COMPILE_ERROR\nDETAILS:\n" + compile_proc.stderr,
+                    "STATUS:COMPILE_ERROR\nDETAILS:\n" +
+                    compile_proc.stderr,
                     200
                 )
 
@@ -128,7 +129,7 @@ def run():
             student = normalize(run_proc.stdout)
             reference = load_reference(size)
 
-            # ---------------- LINE COUNT ----------------
+            # ---------- LINE COUNT ----------
             if len(student) != len(reference):
                 return Response(
                     "STATUS:LINE_COUNT\n"
@@ -144,7 +145,7 @@ def run():
                     200
                 )
 
-            # ---------------- CONTENT ----------------
+            # ---------- CONTENT ----------
             for i, (a, b) in enumerate(zip(student, reference), start=1):
                 if a != b:
                     return Response(
@@ -164,7 +165,7 @@ def run():
     except subprocess.TimeoutExpired:
         return Response(
             "STATUS:TIMEOUT\n"
-            "DETAILS: Your program ran too long (possible infinite loop).",
+            "DETAILS: Program took too long (possible infinite loop).",
             200
         )
 
