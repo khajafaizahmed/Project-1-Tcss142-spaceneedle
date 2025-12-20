@@ -3,240 +3,155 @@
 <head>
 <meta charset="UTF-8">
 <title>TCSS 142 · Project 1 Space Needle Tester</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
 
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
+/* === SAME THEME / COLORS AS PROJECT 3 === */
 :root{
-  --bg:
-    radial-gradient(circle at 15% 20%, #1b3a6f 0%, transparent 40%),
-    radial-gradient(circle at 85% 0%, #4c1d95 0%, transparent 45%),
-    radial-gradient(circle at 50% 100%, #065f46 0%, transparent 45%),
-    #020617;
-
-  --card: rgba(17,24,39,.88);
-  --border: rgba(148,163,184,.35);
+  --bg-gradient: radial-gradient(circle at top, #181c3a 0%, #050810 55%, #02040a 100%);
+  --card-bg: rgba(17,24,39,.88);
+  --border: rgba(148,163,184,.4);
   --text: #e5e7eb;
   --muted: #9ca3af;
-
-  --green:#22c55e;
-  --blue:#38bdf8;
-  --purple:#a855f7;
-  --yellow:#fbbf24;
-  --red:#fb7185;
-
-  --shadow: 0 25px 70px rgba(0,0,0,.75);
+  --ok:#22c55e;
+  --info:#38bdf8;
+  --err:#fb7185;
+  --shadow: 0 22px 60px rgba(0,0,0,.75);
 }
-
-*{box-sizing:border-box}
 
 body{
   margin:0;
   min-height:100vh;
   font-family:Inter,system-ui,sans-serif;
   color:var(--text);
-  background:var(--bg);
-  cursor:none;
+  background:var(--bg-gradient);
+  display:flex;
+  justify-content:center;
+  overflow-x:hidden;
 }
 
-/* ================== BLOB CURSOR ================== */
-.blob-layer{
+/* Aurora background */
+body::before,
+body::after{
+  content:"";
   position:fixed;
-  inset:0;
-  pointer-events:none;
-  filter:url(#husky-blob);
-  z-index:0;
+  inset:-40%;
+  z-index:-2;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(56,189,248,.25), transparent 45%),
+    radial-gradient(circle at 80% 0%, rgba(168,85,247,.24), transparent 50%),
+    radial-gradient(circle at 50% 100%, rgba(34,197,94,.22), transparent 55%);
+  filter:blur(22px);
+  animation: aurora 26s ease-in-out infinite alternate;
 }
-.blob-dot{
-  position:absolute;
-  border-radius:50%;
-  background:radial-gradient(circle at 30% 20%, #b28cff 0, #6a33d9 40%, #32006e 100%);
-  box-shadow:0 25px 55px rgba(0,0,0,.85);
-  opacity:.85;
-  transform:translate(-50%,-50%);
-}
-.blob-dot:nth-child(1){width:55px;height:55px}
-.blob-dot:nth-child(2){width:90px;height:90px}
-.blob-dot:nth-child(3){width:120px;height:120px}
-.blob-dot:nth-child(4){width:140px;height:140px}
-.blob-dot:nth-child(5){width:100px;height:100px}
-.blob-dot:nth-child(6){width:70px;height:70px}
-
-/* ================== DVD ================== */
-.dvd-layer{
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:0;
-}
-.dvd-x{
-  position:absolute;
-  width:110px;
-  height:66px;
-  animation:dvd-x 12s linear infinite alternate;
-}
-.dvd-y{
-  width:110px;
-  height:66px;
-  animation:dvd-y 8s linear infinite alternate;
-}
-@keyframes dvd-x{
-  from{transform:translateX(0)}
-  to{transform:translateX(calc(100vw - 110px))}
-}
-@keyframes dvd-y{
-  from{transform:translateY(0)}
-  to{transform:translateY(calc(100vh - 66px))}
+body::after{
+  animation-duration:38s;
+  opacity:.7;
 }
 
-/* ================== LAYOUT ================== */
-.container{
-  max-width:1250px;
-  margin:28px auto;
-  padding:16px;
-  position:relative;
-  z-index:1;
+@keyframes aurora{
+  0%{transform:translate(-3%,-2%) scale(1.02)}
+  100%{transform:translate(3%,4%) scale(1.06)}
 }
 
-.header{
+.main{
+  width:100%;
+  max-width:1120px;
+  padding:20px;
+}
+
+/* Cards */
+.card{
+  background:var(--card-bg);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:18px 20px;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(22px);
+  margin-bottom:16px;
+}
+
+/* Header */
+.hero{
   display:flex;
   justify-content:space-between;
-  align-items:flex-start;
+  gap:16px;
   margin-bottom:18px;
 }
-.header h1{
+
+.hero h1{
   margin:0;
   font-size:34px;
 }
-.header p{
-  margin:6px 0 0;
-  font-size:14px;
+
+.hero p{
   color:var(--muted);
-  max-width:680px;
+  max-width:620px;
+  font-size:14px;
 }
-.badge{
+
+.status{
   display:inline-flex;
   align-items:center;
   gap:6px;
-  padding:6px 12px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:600;
-  background:linear-gradient(90deg,#22c55e,#38bdf8);
-  color:#020617;
-  margin-bottom:8px;
-}
-.meta{
-  text-align:right;
-  font-size:12px;
-  color:var(--muted);
-}
-
-.card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:20px;
-  padding:18px;
-  box-shadow:var(--shadow);
-  backdrop-filter:blur(24px);
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:420px 1fr;
-  gap:18px;
-}
-@media(max-width:1000px){
-  .grid{grid-template-columns:1fr}
-}
-
-/* ================== INFO CARD ================== */
-.info-card h2{
-  margin-top:0;
-  font-size:18px;
-}
-
-.info-desc{
-  font-size:13px;
-  color:var(--muted);
-  line-height:1.5;
-  margin-bottom:10px;
-}
-
-.info-mini-list{
-  padding-left:18px;
-  margin:0 0 12px;
-  font-size:13px;
-}
-.info-mini-list li{
-  margin-bottom:6px;
-}
-
-.info-mini-list code{
-  background:#020617;
-  border:1px solid var(--border);
-  border-radius:6px;
-  padding:2px 6px;
-  font-family:"JetBrains Mono",monospace;
   font-size:12px;
 }
 
-/* Pills */
-.info-pill-row{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.info-pill{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:8px 12px;
-  border-radius:999px;
-  background:rgba(148,163,184,.08);
-  font-size:12px;
-}
-
-.bullet{
+.dot{
   width:8px;
   height:8px;
   border-radius:50%;
-  background:var(--green);
-  box-shadow:0 0 8px rgba(34,197,94,.8);
-}
-.bullet.info{
-  background:var(--blue);
-  box-shadow:0 0 8px rgba(56,189,248,.8);
-}
-.bullet.danger{
-  background:var(--red);
-  box-shadow:0 0 10px rgba(248,113,113,.9);
+  background:var(--ok);
+  box-shadow:0 0 10px rgba(34,197,94,.9);
 }
 
-/* ================== EDITOR ================== */
+/* Layout */
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr}
+}
+
 textarea{
   width:100%;
-  height:260px;
+  height:280px;
   background:#020617;
   color:var(--text);
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:14px;
   font-family:"JetBrains Mono",monospace;
   font-size:13px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px;
   resize:vertical;
 }
 
-.actions{
-  display:flex;
-  gap:10px;
-  margin-top:10px;
-  flex-wrap:wrap;
+pre{
+  background:#020617;
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px;
+  white-space:pre;
+  overflow:auto;
+  max-height:280px;
+  font-family:"JetBrains Mono",monospace;
+  font-size:12px;
 }
+
+.buttons{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
+
 button{
   border:none;
   border-radius:999px;
@@ -244,269 +159,158 @@ button{
   font-size:13px;
   cursor:pointer;
   display:inline-flex;
-  align-items:center;
   gap:6px;
-}
-.run{background:linear-gradient(90deg,#22c55e,#38bdf8);color:#020617}
-.clear{background:#374151;color:var(--text)}
-
-.result{
-  border-radius:16px;
-  padding:16px;
-  margin-top:12px;
-}
-.ok{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4)}
-.warn{background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.4)}
-.err{background:rgba(251,113,133,.15);border:1px solid rgba(251,113,133,.4)}
-
-pre{
-  white-space:pre;
-  overflow:auto;
-  font-family:"JetBrains Mono",monospace;
-  font-size:12px;
+  align-items:center;
 }
 
-/* ================== FOOTER NOTE ================== */
-
-.footer-note{
-  margin-top:22px;
-  padding:12px 16px;
-  text-align:center;
-  font-size:12px;
-  color:var(--muted);
-  background:rgba(148,163,184,.06);
-  border:1px dashed var(--border);
-  border-radius:14px;
+button.primary{
+  background:linear-gradient(135deg,#22c55e,#38bdf8,#a855f7);
+  color:#020617;
 }
 
-.footer-note code{
+button.secondary{
   background:#020617;
+  color:var(--text);
   border:1px solid var(--border);
-  border-radius:6px;
-  padding:2px 6px;
-  font-family:"JetBrains Mono",monospace;
-  font-size:12px;
 }
 
-.footer-note a{
-  color:inherit;
-  text-decoration:underline;
+button.ghost{
+  background:transparent;
+  color:var(--muted);
+  border:1px dashed var(--border);
 }
 
+.footer{
+  text-align:center;
+  font-size:11px;
+  color:var(--muted);
+  margin-top:10px;
+}
 </style>
 </head>
 
 <body>
+<div class="main">
 
-<!-- SVG filter for blob -->
-<svg width="0" height="0">
-  <filter id="husky-blob">
-    <feGaussianBlur stdDeviation="22"/>
-    <feColorMatrix values="
-      1 0 0 0 0
-      0 1 0 0 0
-      0 0 1 0 0
-      0 0 0 35 -10"/>
-  </filter>
-</svg>
+<header class="hero">
+  <div>
+    <h1>TCSS 142 · Project 1 Strict Tester</h1>
+    <p>
+      Paste your full <code>Project1.java</code> and run the official TA tester.
+      Output is checked <strong>line-by-line</strong> against the reference
+      <code>SpaceNeedle.txt</code>. Spacing matters.
+    </p>
+  </div>
+  <div class="status">
+    <div class="dot" id="statusDot"></div>
+    <span id="statusText">Ready</span>
+  </div>
+</header>
 
-<!-- Blob -->
-<div class="blob-layer">
-  <div class="blob-dot"></div>
-  <div class="blob-dot"></div>
-  <div class="blob-dot"></div>
-  <div class="blob-dot"></div>
-  <div class="blob-dot"></div>
-  <div class="blob-dot"></div>
+<div class="grid">
+
+  <section class="card">
+    <h3>How this tester works</h3>
+    <ul style="color:var(--muted);font-size:13px">
+      <li>Detects <code>static final int SIZE</code> in your file</li>
+      <li>Runs <code>Project1</code> exactly once</li>
+      <li>Compares every printed line to the reference</li>
+      <li>Stops at the <strong>first mismatch</strong></li>
+    </ul>
+    <p style="font-size:11px;color:var(--muted);margin-top:8px">
+      Instructor: Professor Xutong Liu · Built and maintained by TA Faiz Ahmed
+    </p>
+  </section>
+
+  <section class="card">
+    <div style="font-size:12px;margin-bottom:6px">
+      Paste <code>Project1.java</code>
+    </div>
+    <textarea id="code" placeholder="// Paste your full Project1.java here"></textarea>
+
+    <div class="buttons">
+      <button class="primary" onclick="runTests()">▶ Run tests</button>
+      <button class="secondary" onclick="insertTemplate()">📋 Insert template</button>
+      <button class="ghost" onclick="clearInput()">🧾 Clear input</button>
+      <button class="ghost" onclick="clearOutput()">🧹 Clear output</button>
+    </div>
+  </section>
+
 </div>
 
-<!-- DVD -->
-<div class="dvd-layer">
-  <div class="dvd-x">
-    <img class="dvd-y" src="https://vgmoose.bdns.dev/dvd_logo.png">
+<section class="card">
+  <div style="font-size:12px;margin-bottom:6px">
+    Tester output (exact spacing)
   </div>
-</div>
+  <pre id="out">(waiting...)</pre>
+</section>
 
-<div class="container">
-
-  <div class="header">
-    <div>
-      <div class="badge">🗼 SPACE NEEDLE TESTER</div>
-      <h1>TCSS 142 · Project 1 Strict Tester</h1>
-      <p>
-        Paste your full <strong>Project1.java</strong>. Output is checked line-by-line
-        against the official reference used for grading.
-      </p>
-    </div>
-    <div class="meta">
-      TCSS 142 Programming Principles<br>
-      Instructor: Prof. Xutong Liu<br>
-      TA: Faiz Ahmed
-    </div>
-  </div>
-
-  <div class="grid">
-
-    <!-- INFO -->
-    <div class="card info-card">
-      <h2>🧭 How to use this tester</h2>
-
-      <p class="info-desc">
-        Use this page as a quick pre-submit check. A clean run here does not replace
-        your own testing, but it helps catch formatting and logic issues that the
-        auto-grader cares about.
-      </p>
-
-      <ul class="info-mini-list">
-        <li>1. Paste the entire contents of <strong>Project1.java</strong> on the right.</li>
-        <li>2. Ensure the file contains <code>public class Project1</code>.</li>
-        <li>3. Click <em>Run tests</em> or press <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd>.</li>
-        <li>4. Fix the <strong>first mismatch</strong> reported in the output panel.</li>
-      </ul>
-
-      <div class="info-pill-row">
-        <div class="info-pill">
-          <span class="bullet"></span>
-          <span>Checks spacing, symbols, and line count exactly</span>
-        </div>
-        <div class="info-pill">
-          <span class="bullet info"></span>
-          <span>Highlights formatting problems that cause Canvas failures</span>
-        </div>
-        <div class="info-pill">
-          <span class="bullet danger"></span>
-          <span>Reports the first mismatch to keep debugging focused</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- EDITOR -->
-    <div class="card">
-      <h3>📄 Project1.java</h3>
-      <textarea id="code" placeholder="// Paste your Project1.java here"></textarea>
-
-      <div class="actions">
-        <button class="run" onclick="runTests()">▶ Run tests</button>
-        <button class="clear" onclick="clearAll()">🧹 Clear</button>
-        <span style="font-size:12px;color:var(--muted)">⌨ Ctrl / ⌘ + Enter</span>
-      </div>
-
-      <div id="out">(waiting…)</div>
-    </div>
-
-  </div>
-<div class="footer-note">
-  This page runs your code against the official
-  <code>Project1.java</code> on the server side.
-  If you are stuck or the website is not working, please contact
-  <strong>Faiz Ahmed</strong>
-  (<a href="mailto:faizahm@uw.edu">faizahm@uw.edu</a>).
+<div class="footer">
+  This page runs your code with <code>Project1LocalTester</code>.
 </div>
 
 </div>
 
 <script>
-const out = document.getElementById("out");
-const code = document.getElementById("code");
+const out=document.getElementById("out");
+const codeEl=document.getElementById("code");
+const statusText=document.getElementById("statusText");
+const statusDot=document.getElementById("statusDot");
 
-function esc(s){
-  return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+function setStatus(text,color){
+  statusText.textContent=text;
+  statusDot.style.background=color;
+}
+
+function insertTemplate(){
+  const tpl=`public class Project1 {
+
+    public static final int SIZE = 3;
+
+    public static void main(String[] args) {
+        drawSpaceNeedle();
+    }
+
+    public static void drawSpaceNeedle() {
+        // TODO
+    }
+}`;
+  if(codeEl.value.trim() && !confirm("Replace current code with template?")) return;
+  codeEl.value=tpl;
 }
 
 async function runTests(){
-  out.innerHTML = "Running…";
+  if(!codeEl.value.trim()){
+    alert("Paste Project1.java first");
+    return;
+  }
+  setStatus("Running…","#38bdf8");
+  out.textContent="Running tests…";
 
   try{
-    const r = await fetch("/run", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ code: code.value })
+    const res=await fetch("/run",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({code:codeEl.value})
     });
-
-    const text = await r.text();
-    render(text);
+    const text=await res.text();
+    out.textContent=text||"(no output)";
+    setStatus("Finished","#22c55e");
   }catch(e){
-    out.innerHTML =
-      `<div class="result err">
-        Network error. Could not reach the tester server.
-       </div>`;
+    out.textContent="Error: "+e;
+    setStatus("Error","#fb7185");
   }
 }
 
-function render(t){
-  if (t.startsWith("STATUS:PASS")){
-    out.innerHTML =
-      `<div class="result ok">
-        ✅ PASS — All tested SIZE values match the reference.
-       </div>`;
-    return;
-  }
-
-  if (t.startsWith("STATUS:COMPILE_ERROR")){
-    out.innerHTML =
-      `<div class="result err">
-        <pre>${esc(t)}</pre>
-       </div>`;
-    return;
-  }
-
-  if (t.startsWith("STATUS:LINE_COUNT")){
-    const get = k => (t.match(new RegExp(k + ":(.*)")) || [,""])[1];
-
-    out.innerHTML =
-      `<div class="result warn">
-        📏 <b>Line count mismatch (SIZE = ${get("SIZE")})</b><br><br>
-
-        <b>Expected:</b> ${get("EXPECTED_COUNT")} lines<br>
-        <b>Your output:</b> ${get("GOT_COUNT")} lines<br><br>
-
-        <b>Why this happens:</b><br>
-        ${esc(get("HINT"))}<br><br>
-
-        <b>Expected ending:</b>
-        <pre>${esc(section(t,"EXPECTED (ending)"))}</pre>
-
-        <b>Your output ending:</b>
-        <pre>${esc(section(t,"YOUR OUTPUT (ending)"))}</pre>
-      </div>`;
-    return;
-  }
-
-  if (t.startsWith("STATUS:MISMATCH")){
-    const get = k => (t.match(new RegExp(k + ":(.*)")) || [,""])[1];
-
-    out.innerHTML =
-      `<div class="result warn">
-        ❌ <b>Output mismatch (SIZE = ${get("SIZE")})</b><br><br>
-
-        <b>Line:</b> ${get("LINE")}<br><br>
-
-        <b>Expected:</b>
-        <pre>${esc(get("EXPECTED"))}</pre>
-
-        <b>Your output:</b>
-        <pre>${esc(get("GOT"))}</pre>
-
-        <b>Hint:</b> ${esc(get("HINT"))}
-      </div>`;
-    return;
-  }
-
-  out.innerHTML = `<pre>${esc(t)}</pre>`;
+function clearInput(){
+  codeEl.value="";
+  setStatus("Ready","#22c55e");
 }
 
-function section(text, label){
-  const i = text.indexOf(label);
-  if (i === -1) return "";
-  return text.slice(i + label.length).trim();
-}
-
-function clearAll(){
-  code.value = "";
-  out.textContent = "(waiting)";
+function clearOutput(){
+  out.textContent="(waiting...)";
+  setStatus("Ready","#22c55e");
 }
 </script>
-
-
 </body>
 </html>
