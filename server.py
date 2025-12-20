@@ -3,180 +3,102 @@ import os, tempfile, subprocess, shutil, re
 
 app = Flask(__name__)
 
-RUN_TIMEOUT = 30
+# ================= CONFIG =================
 
-REFERENCE_DIR = "reference"
-REFERENCE_TXT = "SpaceNeedle.txt"
+TESTER_FILE = "Project1LocalTester.java"
+REFERENCE_FILE = "SpaceNeedle.txt"
+RUN_TIMEOUT = int(os.environ.get("RUN_TIMEOUT", "30"))
 
-# Sizes to validate
-TEST_SIZES = [1, 2, 3, 4]
-
+# ================= CORS =================
 
 @app.after_request
-def cors(resp):
+def add_cors_headers(resp):
     resp.headers["Access-Control-Allow-Origin"] = "*"
     resp.headers["Access-Control-Allow-Headers"] = "Content-Type"
-    resp.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+    resp.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS, GET"
     return resp
 
-
-# ------------------------------------------------------------
-# NORMALIZATION RULES
-#  • ignore blank lines
-#  • ignore ALL spaces
-#  • compare symbols only
-# ------------------------------------------------------------
-def normalize(text):
-    out = []
-    for line in text.replace("\r\n", "\n").split("\n"):
-        line = line.strip()
-        if line == "":
-            continue
-        out.append(line.replace(" ", ""))
-    return out
-
-
-def load_reference(size):
-    path = os.path.join(REFERENCE_DIR, REFERENCE_TXT)
-    if not os.path.exists(path):
-        raise RuntimeError("SpaceNeedle.txt not found")
-
-    lines = open(path).read().splitlines()
-
-    block = []
-    active = False
-    for line in lines:
-        if line.strip() == f"SIZE = {size}":
-            active = True
-            block.clear()
-            continue
-        if active and line.strip().startswith("SIZE ="):
-            break
-        if active:
-            clean = line.strip()
-            if clean != "":
-                block.append(clean.replace(" ", ""))
-
-    return block
-
-
-# 🔧 SAFE SIZE REWRITE (NO REGEX CRASHES)
-def rewrite_size(code, size):
-    return re.sub(
-        r"(public\s+static\s+final\s+int\s+SIZE\s*=\s*)\d+",
-        lambda m: m.group(1) + str(size),
-        code
-    )
-
+# ================= ROUTES =================
 
 @app.route("/run", methods=["POST", "OPTIONS"])
-def run():
+def run_tests():
     if request.method == "OPTIONS":
         return Response(status=204)
 
-    payload = request.get_json() or {}
-    code = payload.get("code", "")
+    data = request.get_json(silent=True) or {}
+    code = data.get("code", "")
 
+    # Enforce correct class
     if "class Project1" not in code:
         return Response(
-            "STATUS:COMPILE_ERROR\n"
-            "DETAILS: File must declare `public class Project1`",
-            200
+            "❌ Error: File must contain `public class Project1`.",
+            200,
+            mimetype="text/plain"
         )
+
+    # Strip package statements
+    code = re.sub(r'^\s*package\s+.*?;\s*', '', code, flags=re.MULTILINE)
 
     tmp = tempfile.mkdtemp(prefix="p1_")
 
     try:
-        for size in TEST_SIZES:
-            modified = rewrite_size(code, size)
+        # Write student file
+        with open(os.path.join(tmp, "Project1.java"), "w", encoding="utf-8") as f:
+            f.write(code)
 
-            # Remove package if student added one
-            modified = re.sub(
-                r'^\s*package\s+.*?;\s*',
-                '',
-                modified,
-                flags=re.MULTILINE
-            )
+        # Copy tester + reference
+        shutil.copy(TESTER_FILE, os.path.join(tmp, TESTER_FILE))
+        shutil.copy(REFERENCE_FILE, os.path.join(tmp, REFERENCE_FILE))
 
-            with open(os.path.join(tmp, "Project1.java"), "w") as f:
-                f.write(modified)
+        # Compile (tester compiles Project1 internally)
+        compile_proc = subprocess.run(
+            ["javac", TESTER_FILE, "Project1.java"],
+            cwd=tmp,
+            capture_output=True,
+            text=True,
+            timeout=RUN_TIMEOUT
+        )
 
-            # Compile
-            compile_proc = subprocess.run(
-                ["javac", "Project1.java"],
-                cwd=tmp,
-                capture_output=True,
-                text=True,
-                timeout=RUN_TIMEOUT
-            )
+        if compile_proc.returncode != 0:
+            msg = "❌ Compilation failed.\n\n"
+            if compile_proc.stderr:
+                msg += "STDERR:\n" + compile_proc.stderr + "\n"
+            if compile_proc.stdout:
+                msg += "STDOUT:\n" + compile_proc.stdout + "\n"
+            return Response(msg, 200, mimetype="text/plain")
 
-            if compile_proc.returncode != 0:
-                return Response(
-                    "STATUS:COMPILE_ERROR\nDETAILS:\n" +
-                    compile_proc.stderr,
-                    200
-                )
+        # Run tester
+        run_proc = subprocess.run(
+            ["java", "Project1LocalTester"],
+            cwd=tmp,
+            capture_output=True,
+            text=True,
+            timeout=RUN_TIMEOUT
+        )
 
-            # Run
-            run_proc = subprocess.run(
-                ["java", "Project1"],
-                cwd=tmp,
-                capture_output=True,
-                text=True,
-                timeout=RUN_TIMEOUT
-            )
+        output = (run_proc.stdout or "")
+        if run_proc.stderr:
+            output += "\n" + run_proc.stderr
 
-            student = normalize(run_proc.stdout)
-            reference = load_reference(size)
-
-            # ---------- LINE COUNT ----------
-            if len(student) != len(reference):
-                return Response(
-                    "STATUS:LINE_COUNT\n"
-                    f"SIZE:{size}\n\n"
-                    f"Expected: {len(reference)} lines\n"
-                    f"Your output: {len(student)} lines\n\n"
-                    "Why this happens:\n"
-                    "Your output is missing or duplicating a structural section.\n\n"
-                    "Expected ending:\n" +
-                    "\n".join(reference[-6:]) +
-                    "\n\nYour output ending:\n" +
-                    "\n".join(student[-6:]),
-                    200
-                )
-
-            # ---------- CONTENT ----------
-            for i, (a, b) in enumerate(zip(student, reference), start=1):
-                if a != b:
-                    return Response(
-                        "STATUS:MISMATCH\n"
-                        f"SIZE:{size}\n"
-                        f"LINE:{i}\n\n"
-                        "Expected:\n" + b + "\n\n"
-                        "Your output:\n" + a + "\n\n"
-                        "Hint:\n"
-                        "Symbols on this line do not match. "
-                        "Spacing and indentation are ignored.",
-                        200
-                    )
-
-        return Response("STATUS:PASS", 200)
+        return Response(output, 200, mimetype="text/plain")
 
     except subprocess.TimeoutExpired:
-        return Response(
-            "STATUS:TIMEOUT\n"
-            "DETAILS: Program took too long (possible infinite loop).",
-            200
-        )
+        return Response("⏱️ Execution timed out.", 200, mimetype="text/plain")
 
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
+# ================= STATIC =================
 
 @app.get("/")
 def index():
     return send_from_directory(".", "index.html")
 
+@app.get("/healthz")
+def healthz():
+    return "ok", 200
+
+# ================= MAIN =================
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
