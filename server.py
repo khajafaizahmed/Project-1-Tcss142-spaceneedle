@@ -2,10 +2,13 @@ from flask import Flask, request, Response, send_from_directory
 import os, tempfile, subprocess, shutil, re
 
 app = Flask(__name__)
+
 RUN_TIMEOUT = 30
 
 REFERENCE_DIR = "reference"
 REFERENCE_TXT = "SpaceNeedle.txt"
+
+# Sizes we validate
 TEST_SIZES = [1, 2, 3, 4]
 
 
@@ -17,12 +20,27 @@ def cors(resp):
     return resp
 
 
+# ------------------------------------------------------------
+# Normalization rules:
+#   - Ignore empty lines
+#   - Ignore ALL spaces
+#   - Compare symbols only
+# ------------------------------------------------------------
 def normalize(text):
-    return [line.rstrip() for line in text.replace("\r\n", "\n").split("\n")]
+    lines = []
+    for line in text.replace("\r\n", "\n").split("\n"):
+        stripped = line.strip()
+        if stripped == "":
+            continue
+        lines.append(stripped.replace(" ", ""))
+    return lines
 
 
 def load_reference(size):
     path = os.path.join(REFERENCE_DIR, REFERENCE_TXT)
+    if not os.path.exists(path):
+        raise RuntimeError("Reference file SpaceNeedle.txt not found")
+
     lines = open(path).read().splitlines()
 
     block = []
@@ -35,12 +53,15 @@ def load_reference(size):
         if active and line.strip().startswith("SIZE ="):
             break
         if active:
-            block.append(line.rstrip())
+            clean = line.strip()
+            if clean != "":
+                block.append(clean.replace(" ", ""))
     return block
 
 
-# ✅ SAFE SIZE REWRITE (no regex crash)
 def rewrite_size(code, size):
+    # IMPORTANT FIX:
+    # Use a lambda so regex group references NEVER break
     return re.sub(
         r"(public\s+static\s+final\s+int\s+SIZE\s*=\s*)\d+",
         lambda m: m.group(1) + str(size),
@@ -53,11 +74,13 @@ def run():
     if request.method == "OPTIONS":
         return Response(status=204)
 
-    code = (request.get_json() or {}).get("code", "")
+    payload = request.get_json() or {}
+    code = payload.get("code", "")
 
     if "class Project1" not in code:
         return Response(
-            "STATUS:COMPILE_ERROR\nDETAILS:File must declare public class Project1",
+            "STATUS:COMPILE_ERROR\n"
+            "DETAILS: File must declare `public class Project1`",
             200
         )
 
@@ -65,32 +88,36 @@ def run():
 
     try:
         for size in TEST_SIZES:
+            # Rewrite SIZE safely
             modified = rewrite_size(code, size)
 
+            # Strip package if present
+            modified = re.sub(
+                r'^\s*package\s+.*?;\s*',
+                '',
+                modified,
+                flags=re.MULTILINE
+            )
+
             with open(os.path.join(tmp, "Project1.java"), "w") as f:
-                f.write(re.sub(
-                    r'^\s*package\s+.*?;\s*',
-                    '',
-                    modified,
-                    flags=re.MULTILINE
-                ))
+                f.write(modified)
 
             # Compile
-            cs = subprocess.run(
+            compile_proc = subprocess.run(
                 ["javac", "Project1.java"],
                 cwd=tmp,
                 capture_output=True,
                 text=True,
                 timeout=RUN_TIMEOUT
             )
-            if cs.returncode != 0:
+            if compile_proc.returncode != 0:
                 return Response(
-                    "STATUS:COMPILE_ERROR\nDETAILS:\n" + cs.stderr,
+                    "STATUS:COMPILE_ERROR\nDETAILS:\n" + compile_proc.stderr,
                     200
                 )
 
             # Run
-            rp = subprocess.run(
+            run_proc = subprocess.run(
                 ["java", "Project1"],
                 cwd=tmp,
                 capture_output=True,
@@ -98,45 +125,48 @@ def run():
                 timeout=RUN_TIMEOUT
             )
 
-            student = normalize(rp.stdout)
+            student = normalize(run_proc.stdout)
             reference = load_reference(size)
 
-            # ✅ EXACT LINE COUNT REQUIRED
+            # ---------------- LINE COUNT ----------------
             if len(student) != len(reference):
                 return Response(
                     "STATUS:LINE_COUNT\n"
-                    f"SIZE:{size}\n"
-                    f"EXPECTED_COUNT:{len(reference)}\n"
-                    f"GOT_COUNT:{len(student)}\n"
-                    "\nEXPECTED (ending):\n" +
+                    f"SIZE:{size}\n\n"
+                    f"Expected: {len(reference)} lines\n"
+                    f"Your output: {len(student)} lines\n\n"
+                    "Why this happens:\n"
+                    "Your output is missing or duplicating a structural section.\n\n"
+                    "Expected ending:\n" +
                     "\n".join(reference[-6:]) +
-                    "\n\nYOUR OUTPUT (ending):\n" +
+                    "\n\nYour output ending:\n" +
                     "\n".join(student[-6:]),
                     200
                 )
 
-            # Line-by-line comparison
+            # ---------------- CONTENT ----------------
             for i, (a, b) in enumerate(zip(student, reference), start=1):
                 if a != b:
-                    hint = (
-                        "Indentation differs (number of spaces)."
-                        if a.lstrip() == b.lstrip()
-                        else "Characters or spacing differ on this line."
-                    )
                     return Response(
                         "STATUS:MISMATCH\n"
                         f"SIZE:{size}\n"
-                        f"LINE:{i}\n"
-                        f"EXPECTED:{b}\n"
-                        f"GOT:{a}\n"
-                        f"HINT:{hint}",
+                        f"LINE:{i}\n\n"
+                        "Expected:\n" + b + "\n\n"
+                        "Your output:\n" + a + "\n\n"
+                        "Hint:\n"
+                        "Symbols on this line do not match. "
+                        "Spacing and indentation are ignored.",
                         200
                     )
 
         return Response("STATUS:PASS", 200)
 
     except subprocess.TimeoutExpired:
-        return Response("STATUS:TIMEOUT", 200)
+        return Response(
+            "STATUS:TIMEOUT\n"
+            "DETAILS: Your program ran too long (possible infinite loop).",
+            200
+        )
 
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
