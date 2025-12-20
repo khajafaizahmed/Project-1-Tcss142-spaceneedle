@@ -413,17 +413,24 @@ function esc(s){
   return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 }
 
-async function run(){
+async function runTests(){
   out.innerHTML = "Running…";
 
-  const r = await fetch("/run", {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({ code: code.value })
-  });
+  try{
+    const r = await fetch("/run", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ code: code.value })
+    });
 
-  const text = await r.text();
-  render(text);
+    const text = await r.text();
+    render(text);
+  }catch(e){
+    out.innerHTML =
+      `<div class="result err">
+        Network error. Could not reach the tester server.
+       </div>`;
+  }
 }
 
 function render(t){
@@ -457,10 +464,10 @@ function render(t){
         ${esc(get("HINT"))}<br><br>
 
         <b>Expected ending:</b>
-        <pre>${esc(section(t,"EXPECTED_OUTPUT"))}</pre>
+        <pre>${esc(section(t,"EXPECTED (ending)"))}</pre>
 
         <b>Your output ending:</b>
-        <pre>${esc(section(t,"GOT_OUTPUT"))}</pre>
+        <pre>${esc(section(t,"YOUR OUTPUT (ending)"))}</pre>
       </div>`;
     return;
   }
@@ -489,11 +496,9 @@ function render(t){
 }
 
 function section(text, label){
-  const i = text.indexOf(label + ":");
+  const i = text.indexOf(label);
   if (i === -1) return "";
-  return text
-    .slice(i + label.length + 1)
-    .trim();
+  return text.slice(i + label.length).trim();
 }
 
 function clearAll(){
