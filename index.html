@@ -439,21 +439,22 @@ function esc(s){
 }
 
 function parseResponse(t){
-  const lines=t.split("\n");
-  const d={};
-  for(const l of lines){
-    const i=l.indexOf(":");
-    if(i>0){
-      d[l.slice(0,i)] = l.slice(i+1);
+  const d = {};
+  let current = null;
 
-
-
-
+  t.split("\n").forEach(line => {
+    if (/^[A-Z_]+:/.test(line)) {
+      const idx = line.indexOf(":");
+      current = line.slice(0, idx);
+      d[current] = line.slice(idx + 1);
+    } else if (current) {
+      d[current] += "\n" + line;
     }
-  }
+  });
 
   return d;
 }
+
 
 /* ---------- Main actions ---------- */
 
@@ -498,18 +499,32 @@ function render(t){
   }
 
   /* LINE COUNT */
-  if(d.STATUS==="LINE_COUNT"){
-    outEl.innerHTML=`
-      <div class="result warn">
-        📏 <b>Line count mismatch</b><br>
-        Expected <b>${d.EXPECTED}</b> lines, but got <b>${d.GOT}</b>.
-        <div class="info-desc" style="margin-top:8px">
-          This usually means a loop ran too many or too few times.
-          Check loop bounds involving <code>SIZE</code>.
-        </div>
-      </div>`;
-    return;
-  }
+if(d.STATUS==="LINE_COUNT"){
+  const exp = d.EXPECTED_OUTPUT?.split("\n").slice(-6).join("\n") || "";
+  const got = d.GOT_OUTPUT?.split("\n").slice(-6).join("\n") || "";
+
+  outEl.innerHTML=`
+    <div class="result warn">
+      📏 <b>Line count mismatch (SIZE = ${d.SIZE})</b><br>
+      Expected <b>${d.EXPECTED_COUNT}</b> lines, but got <b>${d.GOT_COUNT}</b>.
+      
+      <table>
+        <tr>
+          <th>Expected (ending)</th>
+          <th>Your output (ending)</th>
+        </tr>
+        <tr>
+          <td><pre>${esc(exp)}</pre></td>
+          <td><pre>${esc(got)}</pre></td>
+        </tr>
+      </table>
+
+      <div class="info-desc" style="margin-top:8px">
+        💡 ${esc(d.HINT)}
+      </div>
+    </div>`;
+  return;
+}
 
   /* MISMATCH */
   if(d.STATUS==="MISMATCH"){
