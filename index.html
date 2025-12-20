@@ -406,175 +406,100 @@ pre{
 </div>
 
 <script>
-const codeEl=document.getElementById("code");
-const outEl=document.getElementById("out");
-
-/* Blob motion (UNCHANGED) */
-(()=>{
-  const dots=[...document.querySelectorAll(".blob-dot")];
-  const pts=dots.map(()=>({x:innerWidth/2,y:innerHeight/2}));
-  let tx=innerWidth/2, ty=innerHeight/2;
-  const speed=[.20,.16,.14,.12,.10,.08];
-
-  function tick(){
-    pts[0].x+=(tx-pts[0].x)*speed[0];
-    pts[0].y+=(ty-pts[0].y)*speed[0];
-    for(let i=1;i<pts.length;i++){
-      pts[i].x+=(pts[i-1].x-pts[i].x)*speed[i];
-      pts[i].y+=(pts[i-1].y-pts[i].y)*speed[i];
-    }
-    pts.forEach((p,i)=>{
-      dots[i].style.transform=`translate(${p.x}px,${p.y}px) translate(-50%,-50%)`;
-    });
-    requestAnimationFrame(tick);
-  }
-  addEventListener("pointermove",e=>{tx=e.clientX;ty=e.clientY});
-  tick();
-})();
-
-/* ---------- Helpers ---------- */
+const out = document.getElementById("out");
+const code = document.getElementById("code");
 
 function esc(s){
-  return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+  return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 }
 
-function parseResponse(t){
-  const d = {};
-  let current = null;
+async function run(){
+  out.innerHTML = "Running…";
 
-  t.split("\n").forEach(line => {
-    if (/^[A-Z_]+:/.test(line)) {
-      const idx = line.indexOf(":");
-      current = line.slice(0, idx);
-      d[current] = line.slice(idx + 1);
-    } else if (current) {
-      d[current] += "\n" + line;
-    }
+  const r = await fetch("/run", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ code: code.value })
   });
 
-  return d;
-}
-
-
-/* ---------- Main actions ---------- */
-
-async function runTests(){
-  if(!codeEl.value.trim()){
-    outEl.textContent="Paste Project1.java first.";
-    return;
-  }
-  outEl.textContent="Running tests…";
-  const r=await fetch("/run",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({code:codeEl.value})
-  });
-  render(await r.text());
+  const text = await r.text();
+  render(text);
 }
 
 function render(t){
-  const d=parseResponse(t);
-
-  /* PASS */
-  if(d.STATUS==="PASS"){
-    outEl.innerHTML=`
-      <div class="result ok">
-        🎉 <b>PASS</b><br>
-        Your output matches the reference exactly.
-      </div>`;
+  if (t.startsWith("STATUS:PASS")){
+    out.innerHTML =
+      `<div class="result ok">
+        ✅ PASS — All tested SIZE values match the reference.
+       </div>`;
     return;
   }
 
-  /* COMPILE ERROR */
-  if(d.STATUS==="COMPILE_ERROR"){
-    outEl.innerHTML=`
-      <div class="result err">
-        ❌ <b>Compilation error</b>
+  if (t.startsWith("STATUS:COMPILE_ERROR")){
+    out.innerHTML =
+      `<div class="result err">
         <pre>${esc(t)}</pre>
-        <div class="info-desc" style="margin-top:8px">
-          Fix Java errors before worrying about formatting.
-        </div>
+       </div>`;
+    return;
+  }
+
+  if (t.startsWith("STATUS:LINE_COUNT")){
+    const get = k => (t.match(new RegExp(k + ":(.*)")) || [,""])[1];
+
+    out.innerHTML =
+      `<div class="result warn">
+        📏 <b>Line count mismatch (SIZE = ${get("SIZE")})</b><br><br>
+
+        <b>Expected:</b> ${get("EXPECTED_COUNT")} lines<br>
+        <b>Your output:</b> ${get("GOT_COUNT")} lines<br><br>
+
+        <b>Why this happens:</b><br>
+        ${esc(get("HINT"))}<br><br>
+
+        <b>Expected ending:</b>
+        <pre>${esc(section(t,"EXPECTED_OUTPUT"))}</pre>
+
+        <b>Your output ending:</b>
+        <pre>${esc(section(t,"GOT_OUTPUT"))}</pre>
       </div>`;
     return;
   }
 
-  /* LINE COUNT */
-if(d.STATUS==="LINE_COUNT"){
-  const exp = d.EXPECTED_OUTPUT?.split("\n").slice(-6).join("\n") || "";
-  const got = d.GOT_OUTPUT?.split("\n").slice(-6).join("\n") || "";
+  if (t.startsWith("STATUS:MISMATCH")){
+    const get = k => (t.match(new RegExp(k + ":(.*)")) || [,""])[1];
 
-  outEl.innerHTML=`
-    <div class="result warn">
-      📏 <b>Line count mismatch (SIZE = ${d.SIZE})</b><br>
-      Expected <b>${d.EXPECTED_COUNT}</b> lines, but got <b>${d.GOT_COUNT}</b>.
-      
-      <table>
-        <tr>
-          <th>Expected (ending)</th>
-          <th>Your output (ending)</th>
-        </tr>
-        <tr>
-          <td><pre>${esc(exp)}</pre></td>
-          <td><pre>${esc(got)}</pre></td>
-        </tr>
-      </table>
+    out.innerHTML =
+      `<div class="result warn">
+        ❌ <b>Output mismatch (SIZE = ${get("SIZE")})</b><br><br>
 
-      <div class="info-desc" style="margin-top:8px">
-        💡 ${esc(d.HINT)}
-      </div>
-    </div>`;
-  return;
+        <b>Line:</b> ${get("LINE")}<br><br>
+
+        <b>Expected:</b>
+        <pre>${esc(get("EXPECTED"))}</pre>
+
+        <b>Your output:</b>
+        <pre>${esc(get("GOT"))}</pre>
+
+        <b>Hint:</b> ${esc(get("HINT"))}
+      </div>`;
+    return;
+  }
+
+  out.innerHTML = `<pre>${esc(t)}</pre>`;
 }
 
-  /* MISMATCH */
-  if(d.STATUS==="MISMATCH"){
-    const label={
-      SPACING:"Spacing error",
-      INDENTATION:"Indentation error",
-      LENGTH:"Line length error",
-      CONTENT:"Symbol/content mismatch"
-    }[d.TYPE] || "Output mismatch";
-
-    outEl.innerHTML=`
-      <div class="result warn">
-        ❌ <b>${label}</b><br>
-        <span style="color:var(--muted)">
-          First mismatch on line <b>${d.LINE}</b>
-        </span>
-
-        <table>
-          <tr>
-            <th>Expected</th>
-            <td><pre>${esc(d.EXPECTED)}</pre></td>
-          </tr>
-          <tr>
-            <th>Your output</th>
-            <td><pre>${esc(d.GOT)}</pre></td>
-          </tr>
-        </table>
-
-        <div class="info-desc" style="margin-top:8px">
-          💡 ${esc(d.HINT)}
-        </div>
-      </div>`;
-    return;
-  }
-
-  /* FALLBACK */
-  outEl.innerHTML=`<div class="result warn"><pre>${esc(t)}</pre></div>`;
+function section(text, label){
+  const i = text.indexOf(label + ":");
+  if (i === -1) return "";
+  return text
+    .slice(i + label.length + 1)
+    .trim();
 }
 
 function clearAll(){
-  codeEl.value="";
-  outEl.textContent="(waiting…)";
+  code.value = "";
+  out.textContent = "(waiting)";
 }
-
-document.addEventListener("keydown",e=>{
-  if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){
-    e.preventDefault();
-    runTests();
-  }
-});
 </script>
 
 
