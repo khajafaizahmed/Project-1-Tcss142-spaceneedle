@@ -39,10 +39,11 @@ def load_reference(size):
     return block
 
 
+# ✅ FIXED HERE
 def rewrite_size(code, size):
     return re.sub(
         r"(public\s+static\s+final\s+int\s+SIZE\s*=\s*)\d+",
-        r"\1" + str(size),
+        r"\g<1>" + str(size),
         code
     )
 
@@ -67,8 +68,12 @@ def run():
             modified = rewrite_size(code, size)
 
             with open(os.path.join(tmp, "Project1.java"), "w") as f:
-                f.write(re.sub(r'^\s*package\s+.*?;\s*', '', modified,
-                               flags=re.MULTILINE))
+                f.write(re.sub(
+                    r'^\s*package\s+.*?;\s*',
+                    '',
+                    modified,
+                    flags=re.MULTILINE
+                ))
 
             cs = subprocess.run(
                 ["javac", "Project1.java"],
@@ -88,7 +93,6 @@ def run():
             student = normalize(runp.stdout)
             reference = load_reference(size)
 
-            # ---------- FIXED LINE COUNT CHECK ----------
             if len(student) < len(reference):
                 return Response(
                     "STATUS:LINE_COUNT\n"
@@ -103,13 +107,9 @@ def run():
                     200
                 )
 
-            # If student has *more* lines, allow it — we compare content only
             min_len = min(len(student), len(reference))
-
-            # ---------- CONTENT CHECK ----------
             for i in range(min_len):
-                a = student[i]
-                b = reference[i]
+                a, b = student[i], reference[i]
                 if a != b:
                     hint = (
                         "Indentation differs. Check how many spaces are printed."
