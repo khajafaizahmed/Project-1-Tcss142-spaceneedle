@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>TCSS 142 · Project 1 Tester — Space Needle</title>
+<meta charset="UTF-8">
+<title>TCSS 142 · Project 1 Space Needle Tester</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,289 +11,304 @@
 
 <style>
 :root{
-  --bg:#050810;
-  --card:rgba(17,24,39,.86);
-  --border:rgba(148,163,184,.35);
-  --text:#e5e7eb;
-  --muted:#9ca3af;
-  --mono:"JetBrains Mono",monospace;
-  --ok:#2bd67b;
-  --warn:#ffcc4d;
-  --err:#ff5d5d;
-  --shadow:0 22px 60px rgba(0,0,0,.75);
+  --bg-gradient: radial-gradient(circle at top, #181c3a 0%, #050810 55%, #02040a 100%);
+  --card-bg: rgba(17,24,39,.88);
+  --border: rgba(148,163,184,.4);
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+
+  --ok:#22c55e;
+  --warn:#fbbf24;
+  --err:#fb7185;
+
+  --shadow: 0 22px 60px rgba(0,0,0,.75);
 }
 
 *{box-sizing:border-box}
-html,body{height:100%}
+
 body{
   margin:0;
+  min-height:100vh;
   font-family:Inter,system-ui,sans-serif;
   color:var(--text);
-  background:radial-gradient(circle at top,#181c3a 0%,var(--bg) 55%,#02040a 100%);
-  cursor:none;
-  overflow:hidden;
+  background:var(--bg-gradient);
+  overflow-x:hidden;
 }
 
-/* Aurora */
+/* Aurora background */
 body::before{
   content:"";
   position:fixed;
   inset:-40%;
   background:
-    radial-gradient(circle at 10% 20%,rgba(56,189,248,.2),transparent 45%),
-    radial-gradient(circle at 80% 0%,rgba(168,85,247,.22),transparent 50%),
-    radial-gradient(circle at 50% 100%,rgba(34,197,94,.2),transparent 55%);
-  filter:blur(22px);
-  animation:aurora 26s ease-in-out infinite alternate;
-  z-index:-3;
+    radial-gradient(circle at 10% 20%, rgba(56,189,248,.25), transparent 45%),
+    radial-gradient(circle at 80% 0%, rgba(168,85,247,.24), transparent 50%),
+    radial-gradient(circle at 50% 100%, rgba(34,197,94,.22), transparent 55%);
+  filter: blur(22px);
+  animation: aurora 26s ease-in-out infinite alternate;
+  z-index:-2;
 }
 @keyframes aurora{
   from{transform:translate(-3%,-2%) scale(1.03)}
   to{transform:translate(3%,2%) scale(1.06)}
 }
 
-/* Cursor */
-.cursor{
+/* ---------- DVD LOGO (UNCHANGED STYLE) ---------- */
+.dvd-layer{
   position:fixed;
-  width:14px;
-  height:14px;
-  border-radius:50%;
-  border:1px solid rgba(255,255,255,.6);
-  transform:translate(-50%,-50%);
+  inset:0;
   pointer-events:none;
-  z-index:80;
+  z-index:-1;
 }
-.cursor-glow{
-  position:fixed;
-  width:220px;
-  height:220px;
-  border-radius:50%;
-  transform:translate(-50%,-50%);
-  pointer-events:none;
-  z-index:79;
-  background:radial-gradient(circle,rgba(168,85,247,.22),rgba(56,189,248,.1),transparent 65%);
-  mix-blend-mode:screen;
-}
-
-/* DVD */
-#dvd{
-  position:fixed;
+.dvd-x{
+  position:absolute;
   width:110px;
-  height:46px;
-  border-radius:14px;
-  border:1px solid rgba(148,163,184,.35);
-  background:rgba(2,6,23,.6);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:40;
+  height:66px;
+  animation:dvd-x 10s linear infinite alternate;
 }
-#dvd span{
-  font-weight:800;
-  letter-spacing:.08em;
-  background:linear-gradient(120deg,#4ade80,#38bdf8,#a855f7);
-  -webkit-background-clip:text;
-  color:transparent;
+.dvd-y{
+  width:110px;
+  height:66px;
+  animation:dvd-y 6s linear infinite alternate;
+}
+@keyframes dvd-x{
+  from{transform:translateX(0)}
+  to{transform:translateX(calc(100vw - 110px))}
+}
+@keyframes dvd-y{
+  from{transform:translateY(0)}
+  to{transform:translateY(calc(100vh - 66px))}
 }
 
-/* Layout */
+/* ---------- LAYOUT ---------- */
 .main{
   max-width:1100px;
-  margin:24px auto;
+  margin:28px auto;
   padding:16px;
-}
-.card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:18px;
-  padding:16px;
-  box-shadow:var(--shadow);
-}
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:14px;
-}
-@media(max-width:900px){.grid{grid-template-columns:1fr}}
-
-textarea{
-  width:100%;
-  min-height:420px;
-  background:#020617;
-  color:#e6ebff;
-  border-radius:14px;
-  border:1px solid var(--border);
-  padding:14px;
-  font-family:var(--mono);
-  font-size:13px;
+  position:relative;
+  z-index:1;
 }
 
-button{
-  border-radius:999px;
-  padding:10px 16px;
-  border:none;
-  cursor:pointer;
-  font-weight:600;
+.hero{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:18px;
 }
-.run{
-  background:linear-gradient(135deg,#4ade80,#38bdf8,#a855f7);
-  color:#020617;
+.hero h1{
+  margin:0;
+  font-size:32px;
+  font-weight:700;
 }
-.secondary{
-  background:transparent;
-  border:1px dashed var(--border);
+.hero p{
+  margin:6px 0 0;
+  font-size:14px;
+  color:var(--muted);
+}
+.meta{
+  text-align:right;
+  font-size:12px;
   color:var(--muted);
 }
 
-pre{
+/* Cards */
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr}
+}
+
+.card{
+  background:var(--card-bg);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(22px);
+}
+
+textarea{
+  width:100%;
+  height:280px;
   background:#020617;
-  padding:14px;
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  font-family:"JetBrains Mono",monospace;
+  font-size:13px;
+  resize:vertical;
+}
+
+.button-row{
+  display:flex;
+  gap:8px;
+  margin-top:8px;
+}
+button{
+  border:none;
+  border-radius:999px;
+  padding:8px 18px;
+  font-size:13px;
+  cursor:pointer;
+}
+.run{background:#22c55e;color:#020617}
+.clear{background:#374151;color:var(--text)}
+
+.output{
+  margin-top:12px;
+}
+
+.result{
   border-radius:14px;
-  border:1px solid var(--border);
-  white-space:pre-wrap;
+  padding:14px;
+  border:1px solid transparent;
+}
+.ok{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.4)}
+.warn{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.4)}
+.err{background:rgba(248,113,133,.15);border-color:rgba(248,113,133,.4)}
+
+pre{
+  margin:0;
+  white-space:pre;
+  overflow:auto;
+  font-family:"JetBrains Mono",monospace;
+  font-size:12px;
 }
 
-/* Result cards */
-.result{border-radius:16px;padding:14px;border:1px solid rgba(255,255,255,.12)}
-.result.ok{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.35)}
-.result.warn{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.35)}
-.result.err{background:rgba(251,113,133,.1);border-color:rgba(251,113,133,.35)}
-.resultTitle{font-weight:800;margin-bottom:6px}
-.hint{opacity:.75;font-size:12px}
-
-table{width:100%;border-collapse:collapse}
-th,td{border:1px solid rgba(255,255,255,.1);padding:8px;font-family:var(--mono)}
-th{color:var(--muted);width:140px}
-
-/* Toast */
-.toast{
-  position:fixed;
-  bottom:18px;
-  right:18px;
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:10px 12px;
-  opacity:0;
-  transition:.2s;
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:8px;
 }
-.toast.show{opacity:1}
+th,td{
+  border:1px solid var(--border);
+  padding:6px;
+  font-family:"JetBrains Mono",monospace;
+  font-size:12px;
+}
+th{color:var(--muted);width:130px}
+
+.hint{
+  margin-top:6px;
+  font-size:12px;
+  color:var(--muted);
+}
 </style>
 </head>
 
 <body>
 
-<div id="dvd"><span>DVD</span></div>
-<div class="cursor-glow" id="glow"></div>
-<div class="cursor" id="cursor"></div>
-<div class="toast" id="toast"></div>
+<!-- DVD background -->
+<div class="dvd-layer">
+  <div class="dvd-x">
+    <img class="dvd-y" src="https://vgmoose.bdns.dev/dvd_logo.png" alt="dvd">
+  </div>
+</div>
 
 <div class="main">
-  <h1>TCSS 142 · Project 1 Tester — Space Needle</h1>
+
+  <div class="hero">
+    <div>
+      <h1>TCSS 142 · Project 1 Tester</h1>
+      <p>Paste <code>Project1.java</code>. Output is checked line-by-line against the official Space Needle.</p>
+    </div>
+    <div class="meta">
+      <div>Programming Principles</div>
+      <div>Instructor: Prof. Xutong Liu</div>
+      <div>TA: Faiz Ahmed</div>
+    </div>
+  </div>
 
   <div class="grid">
+
     <div class="card">
-      <h3>Paste Project1.java</h3>
-      <textarea id="code"></textarea>
-      <br><br>
-      <button class="run" onclick="runTests()">Run Tests (Ctrl+Enter)</button>
-      <button class="secondary" onclick="clearAll()">Clear</button>
+      <h3>Project1.java</h3>
+      <textarea id="code" placeholder="// Paste Project1.java here"></textarea>
+      <div class="button-row">
+        <button class="run" onclick="runTests()">Run tests</button>
+        <button class="clear" onclick="clearAll()">Clear</button>
+      </div>
     </div>
 
     <div class="card">
       <h3>Tester Output</h3>
-      <div id="out">(waiting)</div>
+      <div class="output" id="out">(waiting)</div>
     </div>
+
   </div>
 </div>
 
 <script>
 const codeEl=document.getElementById("code");
 const outEl=document.getElementById("out");
-const toastEl=document.getElementById("toast");
 
-function toast(msg){
-  toastEl.textContent=msg;
-  toastEl.classList.add("show");
-  setTimeout(()=>toastEl.classList.remove("show"),1600);
-}
-
-function escapeHtml(s){
-  return (s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+function esc(s){
+  return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 }
 function showSpaces(s){
-  if(s==="")return"(empty)";
-  return escapeHtml(s).replace(/ /g,"·");
+  if(s==="") return "(empty)";
+  return esc(s).replace(/ /g,"·");
 }
 
 async function runTests(){
-  const res=await fetch("/run",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code:codeEl.value})});
-  const text=await res.text();
-  renderResult(text);
+  if(!codeEl.value.trim()){
+    outEl.textContent="Paste Project1.java first.";
+    return;
+  }
+  outEl.textContent="Running tests...";
+  try{
+    const r=await fetch("/run",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({code:codeEl.value})
+    });
+    render(await r.text());
+  }catch(e){
+    outEl.textContent="Network error.";
+  }
 }
 
-function renderResult(raw){
-  if(raw.startsWith("STATUS:PASS")){
-    outEl.innerHTML=`<div class="result ok"><div class="resultTitle">✅ PASS</div>Your output matches exactly.</div>`;
-    toast("PASS");
+function render(t){
+  if(t.startsWith("STATUS:PASS")){
+    outEl.innerHTML=`<div class="result ok"><b>✅ PASS</b><br>Output matches exactly.</div>`;
     return;
   }
-  if(raw.startsWith("STATUS:COMPILE_ERROR")){
-    outEl.innerHTML=`<div class="result err"><div class="resultTitle">❌ COMPILE ERROR</div><pre>${escapeHtml(raw)}</pre></div>`;
-    toast("Compile error");
+  if(t.startsWith("STATUS:COMPILE_ERROR")){
+    outEl.innerHTML=`<div class="result err"><b>❌ Compilation error</b><pre>${esc(t)}</pre></div>`;
     return;
   }
-  if(raw.startsWith("STATUS:MISMATCH")){
-    const l=raw.match(/LINE:(\d+)/)[1];
-    const e=raw.match(/EXPECTED:(.*)/)[1];
-    const g=raw.match(/GOT:(.*)/)[1];
+  if(t.startsWith("STATUS:LINE_COUNT")){
+    const e=t.match(/EXPECTED:(\d+)/)[1];
+    const g=t.match(/GOT:(\d+)/)[1];
+    outEl.innerHTML=`<div class="result warn"><b>⚠️ Line count mismatch</b><br>Expected ${e}, got ${g}</div>`;
+    return;
+  }
+  if(t.startsWith("STATUS:MISMATCH")){
+    const l=t.match(/LINE:(\d+)/)[1];
+    const e=t.match(/EXPECTED:(.*)/)[1];
+    const g=t.match(/GOT:(.*)/)[1];
     outEl.innerHTML=`
       <div class="result warn">
-        <div class="resultTitle">⚠️ Mismatch at line ${l}</div>
+        <b>⚠️ Mismatch at line ${l}</b>
         <table>
           <tr><th>Expected</th><td>${showSpaces(e)}</td></tr>
           <tr><th>Your output</th><td>${showSpaces(g)}</td></tr>
         </table>
-        <div class="hint">Spacing matters.</div>
+        <div class="hint">Spacing must match exactly.</div>
       </div>`;
-    toast("Mismatch");
     return;
   }
-  outEl.textContent=raw;
+  outEl.textContent=t;
 }
 
 function clearAll(){
   codeEl.value="";
   outEl.textContent="(waiting)";
 }
-
-/* Cursor follow */
-let mx=0,my=0,cx=0,cy=0;
-document.addEventListener("mousemove",e=>{mx=e.clientX;my=e.clientY});
-function tick(){
-  cx+=(mx-cx)*.18; cy+=(my-cy)*.18;
-  cursor.style.left=cx+"px"; cursor.style.top=cy+"px";
-  glow.style.left=cx+"px"; glow.style.top=cy+"px";
-  requestAnimationFrame(tick);
-}
-tick();
-
-/* DVD bounce */
-const dvd=document.getElementById("dvd");
-let x=40,y=80,dx=1.3,dy=1.1;
-function bounce(){
-  x+=dx;y+=dy;
-  if(x<0||x+dvd.offsetWidth>innerWidth)dx*=-1;
-  if(y<0||y+dvd.offsetHeight>innerHeight)dy*=-1;
-  dvd.style.left=x+"px"; dvd.style.top=y+"px";
-  requestAnimationFrame(bounce);
-}
-bounce();
-
-/* Shortcut */
-document.addEventListener("keydown",e=>{
-  if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){runTests();e.preventDefault();}
-});
 </script>
 
 </body>
