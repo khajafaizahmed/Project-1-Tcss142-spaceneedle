@@ -406,59 +406,33 @@ pre{
 </div>
 
 <script>
-const codeEl=document.getElementById("code");
-const outEl=document.getElementById("out");
-
-/* Blob motion (UNCHANGED) */
-(()=>{
-  const dots=[...document.querySelectorAll(".blob-dot")];
-  const pts=dots.map(()=>({x:innerWidth/2,y:innerHeight/2}));
-  let tx=innerWidth/2, ty=innerHeight/2;
-  const speed=[.20,.16,.14,.12,.10,.08];
-
-  function tick(){
-    pts[0].x+=(tx-pts[0].x)*speed[0];
-    pts[0].y+=(ty-pts[0].y)*speed[0];
-    for(let i=1;i<pts.length;i++){
-      pts[i].x+=(pts[i-1].x-pts[i].x)*speed[i];
-      pts[i].y+=(pts[i-1].y-pts[i].y)*speed[i];
-    }
-    pts.forEach((p,i)=>{
-      dots[i].style.transform=`translate(${p.x}px,${p.y}px) translate(-50%,-50%)`;
-    });
-    requestAnimationFrame(tick);
-  }
-  addEventListener("pointermove",e=>{tx=e.clientX;ty=e.clientY});
-  tick();
-})();
-
-/* ---------- Helpers ---------- */
+const codeEl = document.getElementById("code");
+const outEl  = document.getElementById("out");
 
 function esc(s){
   return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 }
 
 function parseResponse(t){
-  const lines=t.split("\n");
-  const d={};
-  for(const l of lines){
-    const i=l.indexOf(":");
-    if(i>0){
-      d[l.slice(0,i)] = l.slice(i+1);
+  const d = {};
+  let current = null;
+
+  t.split("\n").forEach(line => {
+    if (/^[A-Z_]+:/.test(line)) {
+      const i = line.indexOf(":");
+      current = line.slice(0, i);
+      d[current] = line.slice(i + 1);
+    } else if (current) {
+      d[current] += "\n" + line;
     }
-  }
+  });
+
   return d;
 }
 
-/* ---------- Main actions ---------- */
-
 async function runTests(){
-  if(!codeEl.value.trim()){
-    outEl.textContent="Paste Project1.java first.";
-    return;
-  }
-  outEl.textContent="Running tests…";
-  const r=await fetch("/run",{
+  outEl.textContent = "Running tests…";
+  const r = await fetch("/run",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({code:codeEl.value})
@@ -467,94 +441,60 @@ async function runTests(){
 }
 
 function render(t){
-  const d=parseResponse(t);
+  const d = parseResponse(t);
 
-  /* PASS */
-  if(d.STATUS==="PASS"){
-    outEl.innerHTML=`
-      <div class="result ok">
-        🎉 <b>PASS</b><br>
-        Your output matches the reference exactly.
-      </div>`;
+  if(d.STATUS === "PASS"){
+    outEl.innerHTML = `<div class="result ok">🎉 <b>PASS</b><br>Output matches exactly.</div>`;
     return;
   }
 
-  /* COMPILE ERROR */
-  if(d.STATUS==="COMPILE_ERROR"){
-    outEl.innerHTML=`
-      <div class="result err">
-        ❌ <b>Compilation error</b>
-        <pre>${esc(t)}</pre>
-        <div class="info-desc" style="margin-top:8px">
-          Fix Java errors before worrying about formatting.
-        </div>
-      </div>`;
+  if(d.STATUS === "COMPILE_ERROR"){
+    outEl.innerHTML = `<div class="result err"><b>❌ Compile error</b><pre>${esc(d.DETAILS)}</pre></div>`;
     return;
   }
 
-  /* LINE COUNT */
-  if(d.STATUS==="LINE_COUNT"){
-    outEl.innerHTML=`
+  if(d.STATUS === "LINE_COUNT"){
+    const exp = d.EXPECTED_OUTPUT.split("\n");
+    const got = d.GOT_OUTPUT.split("\n");
+    const tail = a => a.slice(-6).join("\n");
+
+    outEl.innerHTML = `
       <div class="result warn">
         📏 <b>Line count mismatch</b><br>
-        Expected <b>${d.EXPECTED}</b> lines, but got <b>${d.GOT}</b>.
-        <div class="info-desc" style="margin-top:8px">
-          This usually means a loop ran too many or too few times.
-          Check loop bounds involving <code>SIZE</code>.
-        </div>
-      </div>`;
-    return;
-  }
-
-  /* MISMATCH */
-  if(d.STATUS==="MISMATCH"){
-    const label={
-      SPACING:"Spacing error",
-      INDENTATION:"Indentation error",
-      LENGTH:"Line length error",
-      CONTENT:"Symbol/content mismatch"
-    }[d.TYPE] || "Output mismatch";
-
-    outEl.innerHTML=`
-      <div class="result warn">
-        ❌ <b>${label}</b><br>
-        <span style="color:var(--muted)">
-          First mismatch on line <b>${d.LINE}</b>
-        </span>
-
+        Expected <b>${d.EXPECTED_COUNT}</b> lines,
+        but your program printed <b>${d.GOT_COUNT}</b>.
         <table>
           <tr>
-            <th>Expected</th>
-            <td><pre>${esc(d.EXPECTED)}</pre></td>
+            <th>Expected (ending)</th>
+            <th>Your output (ending)</th>
           </tr>
           <tr>
-            <th>Your output</th>
-            <td><pre>${esc(d.GOT)}</pre></td>
+            <td><pre>${esc(tail(exp))}</pre></td>
+            <td><pre>${esc(tail(got))}</pre></td>
           </tr>
         </table>
-
-        <div class="info-desc" style="margin-top:8px">
-          💡 ${esc(d.HINT)}
-        </div>
-      </div>`;
+        <div class="hint">💡 ${esc(d.HINT)}</div>
+      </div>
+    `;
     return;
   }
 
-  /* FALLBACK */
-  outEl.innerHTML=`<div class="result warn"><pre>${esc(t)}</pre></div>`;
-}
-
-function clearAll(){
-  codeEl.value="";
-  outEl.textContent="(waiting…)";
-}
-
-document.addEventListener("keydown",e=>{
-  if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){
-    e.preventDefault();
-    runTests();
+  if(d.STATUS === "MISMATCH"){
+    outEl.innerHTML = `
+      <div class="result warn">
+        ❌ <b>Mismatch on line ${d.LINE}</b>
+        <table>
+          <tr><th>Expected</th><td><pre>${esc(d.EXPECTED)}</pre></td></tr>
+          <tr><th>Your output</th><td><pre>${esc(d.GOT)}</pre></td></tr>
+        </table>
+        <div class="hint">💡 ${esc(d.HINT)}</div>
+      </div>
+    `;
+    return;
   }
-});
+
+  outEl.textContent = t;
+}
 </script>
 
 
