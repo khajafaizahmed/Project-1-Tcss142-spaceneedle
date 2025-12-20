@@ -11,1096 +11,289 @@
 
 <style>
 :root{
-  --bg: #050810;
-  --card: rgba(17, 24, 39, 0.86);
-  --border: rgba(148,163,184,.35);
-  --text: #e5e7eb;
-  --muted: #9ca3af;
-  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-
-  --ok: #2bd67b;
-  --warn: #ffcc4d;
-  --err: #ff5d5d;
-
-  --shadow: 0 22px 60px rgba(0,0,0,.75);
+  --bg:#050810;
+  --card:rgba(17,24,39,.86);
+  --border:rgba(148,163,184,.35);
+  --text:#e5e7eb;
+  --muted:#9ca3af;
+  --mono:"JetBrains Mono",monospace;
+  --ok:#2bd67b;
+  --warn:#ffcc4d;
+  --err:#ff5d5d;
+  --shadow:0 22px 60px rgba(0,0,0,.75);
 }
 
-body[data-theme="light"]{
-  --bg: #f8fafc;
-  --card: rgba(255,255,255,.92);
-  --border: rgba(148,163,184,.55);
-  --text: #020617;
-  --muted: #6b7280;
-  --shadow: 0 18px 45px rgba(15,23,42,.18);
-}
-
-*{ box-sizing: border-box; }
-html, body{ height:100%; }
+*{box-sizing:border-box}
+html,body{height:100%}
 body{
   margin:0;
-  font-family: Inter, system-ui, sans-serif;
-  color: var(--text);
-  background: radial-gradient(circle at top, #181c3a 0%, var(--bg) 55%, #02040a 100%);
-  overflow-x:hidden;
-  cursor: none; /* we replace the cursor */
+  font-family:Inter,system-ui,sans-serif;
+  color:var(--text);
+  background:radial-gradient(circle at top,#181c3a 0%,var(--bg) 55%,#02040a 100%);
+  cursor:none;
+  overflow:hidden;
 }
 
-/* Aurora backdrop */
+/* Aurora */
 body::before{
   content:"";
   position:fixed;
   inset:-40%;
   background:
-    radial-gradient(circle at 10% 20%, rgba(56,189,248,.20), transparent 45%),
-    radial-gradient(circle at 80% 0%, rgba(168,85,247,.22), transparent 50%),
-    radial-gradient(circle at 50% 100%, rgba(34,197,94,.20), transparent 55%);
-  filter: blur(22px);
-  animation: aurora 26s ease-in-out infinite alternate;
+    radial-gradient(circle at 10% 20%,rgba(56,189,248,.2),transparent 45%),
+    radial-gradient(circle at 80% 0%,rgba(168,85,247,.22),transparent 50%),
+    radial-gradient(circle at 50% 100%,rgba(34,197,94,.2),transparent 55%);
+  filter:blur(22px);
+  animation:aurora 26s ease-in-out infinite alternate;
   z-index:-3;
 }
 @keyframes aurora{
-  from{ transform: translate(-3%,-2%) scale(1.03); }
-  to{ transform: translate(3%,2%) scale(1.06); }
+  from{transform:translate(-3%,-2%) scale(1.03)}
+  to{transform:translate(3%,2%) scale(1.06)}
+}
+
+/* Cursor */
+.cursor{
+  position:fixed;
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.6);
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  z-index:80;
+}
+.cursor-glow{
+  position:fixed;
+  width:220px;
+  height:220px;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  z-index:79;
+  background:radial-gradient(circle,rgba(168,85,247,.22),rgba(56,189,248,.1),transparent 65%);
+  mix-blend-mode:screen;
+}
+
+/* DVD */
+#dvd{
+  position:fixed;
+  width:110px;
+  height:46px;
+  border-radius:14px;
+  border:1px solid rgba(148,163,184,.35);
+  background:rgba(2,6,23,.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:40;
+}
+#dvd span{
+  font-weight:800;
+  letter-spacing:.08em;
+  background:linear-gradient(120deg,#4ade80,#38bdf8,#a855f7);
+  -webkit-background-clip:text;
+  color:transparent;
 }
 
 /* Layout */
 .main{
-  max-width: 1160px;
-  margin: 26px auto;
-  padding: 16px;
+  max-width:1100px;
+  margin:24px auto;
+  padding:16px;
 }
-
-.header{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:16px;
-  margin-bottom: 16px;
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:16px;
+  box-shadow:var(--shadow);
 }
-
-.hgroup h1{
-  margin:0;
-  font-size: clamp(26px, 4vw, 36px);
-  letter-spacing: -0.02em;
-}
-.hgroup h1 span{
-  background: linear-gradient(120deg, #4ade80, #38bdf8, #a855f7);
-  -webkit-background-clip: text;
-  color: transparent;
-}
-.subtitle{
-  margin-top:8px;
-  max-width: 720px;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.35;
-}
-
-.header-actions{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  flex-wrap:wrap;
-  justify-content:flex-end;
-}
-
-.pill{
-  border: 1px solid var(--border);
-  background: var(--card);
-  border-radius: 999px;
-  padding: 8px 12px;
-  font-size: 12px;
-  color: var(--muted);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(18px);
-  user-select:none;
-}
-
-.btn{
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  color: var(--text);
-  padding: 8px 12px;
-  cursor: pointer;
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(18px);
-  font-size: 12px;
-}
-.btn:hover{ filter: brightness(1.05); }
-
 .grid{
   display:grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 14px;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
 }
-@media (max-width: 920px){
-  .grid{ grid-template-columns: 1fr; }
-}
-
-.card{
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 18px 18px;
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(18px);
-}
-
-.card h2{
-  margin:0 0 10px 0;
-  font-size: 15px;
-}
-.card p{
-  margin: 8px 0 0 0;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.35;
-}
-
-.editor{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
 
 textarea{
   width:100%;
-  min-height: 420px;
-  resize: vertical;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: rgba(2,6,23,.92);
-  color: #e6ebff;
-  padding: 14px 14px;
-  font-family: var(--mono);
-  font-size: 13px;
-  line-height: 1.35;
-  outline:none;
-}
-body[data-theme="light"] textarea{
-  background: rgba(2,6,23,.95);
+  min-height:420px;
+  background:#020617;
+  color:#e6ebff;
+  border-radius:14px;
+  border:1px solid var(--border);
+  padding:14px;
+  font-family:var(--mono);
+  font-size:13px;
 }
 
-.toolbar{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-.action{
+button{
+  border-radius:999px;
+  padding:10px 16px;
   border:none;
-  border-radius: 999px;
-  padding: 10px 14px;
   cursor:pointer;
-  font-weight: 600;
-  font-size: 12px;
+  font-weight:600;
+}
+.run{
+  background:linear-gradient(135deg,#4ade80,#38bdf8,#a855f7);
+  color:#020617;
+}
+.secondary{
+  background:transparent;
+  border:1px dashed var(--border);
+  color:var(--muted);
 }
 
-.action.run{
-  background: linear-gradient(135deg, #4ade80, #38bdf8, #a855f7);
-  color: #0b1020;
-}
-.action.secondary{
-  background: transparent;
-  border: 1px dashed var(--border);
-  color: var(--muted);
-}
-
-.output{
-  margin-top: 8px;
-}
 pre{
-  background: rgba(2,6,23,.92);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 14px;
-  overflow:auto;
-  max-height: 420px;
-  font-family: var(--mono);
-  font-size: 12px;
-  line-height: 1.35;
-  white-space: pre-wrap;
-  color: #e6ebff;
-}
-table{
-  width:100%;
-  border-collapse: collapse;
-  margin-top:10px;
-}
-th, td{
-  border: 1px solid rgba(148,163,184,.25);
-  padding: 8px 10px;
-  vertical-align: top;
-}
-th{
-  text-align:left;
-  color: var(--muted);
-  font-weight: 600;
-  font-size: 12px;
-  width: 140px;
-}
-.hint{
-  margin-top:10px;
-  color: var(--muted);
-  font-size: 12px;
+  background:#020617;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  white-space:pre-wrap;
 }
 
-.footer{
-  margin-top: 12px;
-  text-align:center;
-  color: var(--muted);
-  font-size: 11px;
-}
+/* Result cards */
+.result{border-radius:16px;padding:14px;border:1px solid rgba(255,255,255,.12)}
+.result.ok{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.35)}
+.result.warn{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.35)}
+.result.err{background:rgba(251,113,133,.1);border-color:rgba(251,113,133,.35)}
+.resultTitle{font-weight:800;margin-bottom:6px}
+.hint{opacity:.75;font-size:12px}
 
-/* Status styles */
-.status-ok{ color: var(--ok); }
-.status-warn{ color: var(--warn); }
-.status-err{ color: var(--err); }
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid rgba(255,255,255,.1);padding:8px;font-family:var(--mono)}
+th{color:var(--muted);width:140px}
 
 /* Toast */
 .toast{
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(18px);
-  color: var(--text);
-  font-size: 12px;
-  transform: translateY(16px);
-  opacity: 0;
-  transition: opacity .2s ease, transform .2s ease;
-  z-index: 50;
-  pointer-events:none;
+  position:fixed;
+  bottom:18px;
+  right:18px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:10px 12px;
+  opacity:0;
+  transition:.2s;
 }
-.toast.show{
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Shortcut modal */
-.modal-backdrop{
-  position: fixed;
-  inset:0;
-  background: rgba(0,0,0,.55);
-  backdrop-filter: blur(6px);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:60;
-}
-.modal-backdrop.show{ display:flex; }
-.modal{
-  width: min(720px, calc(100% - 32px));
-  border-radius: 18px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  box-shadow: var(--shadow);
-  padding: 16px;
-}
-.modal h3{ margin: 0 0 10px 0; font-size: 16px; }
-kbd{
-  font-family: var(--mono);
-  font-size: 11px;
-  padding: 3px 6px;
-  border: 1px solid rgba(148,163,184,.35);
-  border-bottom-width: 2px;
-  border-radius: 8px;
-  background: rgba(2,6,23,.55);
-  color: #e6ebff;
-}
-.shortcut-grid{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-@media (max-width: 620px){
-  .shortcut-grid{ grid-template-columns: 1fr; }
-}
-.shortcut{
-  border: 1px solid rgba(148,163,184,.20);
-  border-radius: 14px;
-  padding: 10px;
-}
-.shortcut .desc{
-  margin-top: 6px;
-  color: var(--muted);
-  font-size: 12px;
-}
-.modal .close-row{
-  display:flex;
-  justify-content:flex-end;
-  margin-top: 12px;
-}
-
-/* Custom cursor + trail */
-.cursor{
-  position: fixed;
-  width: 14px;
-  height: 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.6);
-  transform: translate(-50%,-50%);
-  pointer-events:none;
-  z-index: 80;
-  mix-blend-mode: screen;
-  background: rgba(168,85,247,.25);
-  box-shadow: 0 0 18px rgba(168,85,247,.35), 0 0 40px rgba(56,189,248,.20);
-}
-.cursor-glow{
-  position: fixed;
-  width: 220px;
-  height: 220px;
-  border-radius: 50%;
-  transform: translate(-50%,-50%);
-  pointer-events:none;
-  z-index: 79;
-  background: radial-gradient(circle, rgba(168,85,247,.22), rgba(56,189,248,.10), transparent 65%);
-  filter: blur(2px);
-  mix-blend-mode: screen;
-  opacity: .85;
-}
-
-/* DVD logo */
-#dvd{
-  position: fixed;
-  left: 28px;
-  top: 110px;
-  width: 110px;
-  height: 46px;
-  border-radius: 14px;
-  border: 1px solid rgba(148,163,184,.35);
-  background: rgba(2,6,23,.55);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 12px 28px rgba(0,0,0,.45);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index: 40;
-  user-select:none;
-  pointer-events:none;
-}
-#dvd .mark{
-  font-weight: 800;
-  letter-spacing: .08em;
-  font-size: 14px;
-  background: linear-gradient(120deg, #4ade80, #38bdf8, #a855f7);
-  -webkit-background-clip:text;
-  color: transparent;
-}
-#dvd .tiny{
-  margin-left: 6px;
-  font-size: 10px;
-  color: var(--muted);
-  letter-spacing: .12em;
-}
-
-/* Confetti canvas */
-#confetti{
-  position: fixed;
-  inset: 0;
-  pointer-events:none;
-  z-index: 70;
-}
-/* =========================
-   Project 1 Tester Results
-   ========================= */
-.result{
-  border-radius: 16px;
-  padding: 14px;
-  border: 1px solid rgba(255,255,255,.12);
-}
-.resultTitle{
-  font-weight: 800;
-  letter-spacing: .04em;
-  margin-bottom: 6px;
-}
-.resultText{
-  opacity: .92;
-  margin-bottom: 10px;
-}
-.result.ok{
-  background: rgba(34,197,94,.12);
-  border-color: rgba(34,197,94,.35);
-}
-.result.warn{
-  background: rgba(251,191,36,.10);
-  border-color: rgba(251,191,36,.35);
-}
-.result.err{
-  background: rgba(251,113,133,.10);
-  border-color: rgba(251,113,133,.35);
-}
-
+.toast.show{opacity:1}
 </style>
 </head>
 
-<body data-theme="dark">
+<body>
 
-<canvas id="confetti"></canvas>
-<div id="dvd"><span class="mark">DVD</span><span class="tiny">MODE</span></div>
-<div class="cursor-glow" id="cursorGlow"></div>
+<div id="dvd"><span>DVD</span></div>
+<div class="cursor-glow" id="glow"></div>
 <div class="cursor" id="cursor"></div>
-
 <div class="toast" id="toast"></div>
 
-<div class="modal-backdrop" id="modal">
-  <div class="modal">
-    <h3>Shortcuts</h3>
-    <div class="shortcut-grid">
-      <div class="shortcut">
-        <div><kbd>Ctrl</kbd> + <kbd>Enter</kbd></div>
-        <div class="desc">Run tests</div>
-      </div>
-      <div class="shortcut">
-        <div><kbd>Ctrl</kbd> + <kbd>L</kbd></div>
-        <div class="desc">Clear editor and output</div>
-      </div>
-      <div class="shortcut">
-        <div><kbd>Ctrl</kbd> + <kbd>K</kbd></div>
-        <div class="desc">Insert Project1 template (safe stub)</div>
-      </div>
-      <div class="shortcut">
-        <div><kbd>Ctrl</kbd> + <kbd>S</kbd></div>
-        <div class="desc">Save draft locally</div>
-      </div>
-      <div class="shortcut">
-        <div><kbd>Ctrl</kbd> + <kbd>O</kbd></div>
-        <div class="desc">Load saved draft</div>
-      </div>
-      <div class="shortcut">
-        <div><kbd>?</kbd></div>
-        <div class="desc">Open this shortcuts panel</div>
-      </div>
-      <div class="shortcut">
-        <div><kbd>Esc</kbd></div>
-        <div class="desc">Close shortcuts panel</div>
-      </div>
-      <div class="shortcut">
-        <div><kbd>Ctrl</kbd> + <kbd>/</kbd></div>
-        <div class="desc">Toggle comment on selected lines (basic)</div>
-      </div>
-    </div>
-    <div class="close-row">
-      <button class="btn" onclick="toggleShortcuts(false)">Close</button>
-    </div>
-  </div>
-</div>
-
 <div class="main">
-  <div class="header">
-    <div class="hgroup">
-      <h1><span>TCSS 142</span> Project 1 Tester</h1>
-      <div class="subtitle">
-        Paste <b>Project1.java</b>. We compile, run, and compare your Space Needle output line-by-line against the official reference.
-        Spacing matters.
-      </div>
-    </div>
-
-    <div class="header-actions">
-      <div class="pill" id="statusPill">
-        Status: <span id="statusText" class="status-warn">Idle</span>
-      </div>
-      <button class="btn" id="btnShortcuts" onclick="toggleShortcuts(true)">Shortcuts</button>
-      <button class="btn" id="btnTheme" onclick="toggleTheme()">Theme</button>
-    </div>
-  </div>
+  <h1>TCSS 142 · Project 1 Tester — Space Needle</h1>
 
   <div class="grid">
     <div class="card">
-      <h2>How it checks</h2>
-      <p>
-        • Compiles your file as <code>Project1.java</code><br>
-        • Runs the official reference output generator<br>
-        • Normalizes line endings, trims trailing whitespace only<br>
-        • Compares every line exactly and reports the first mismatch
-      </p>
-      <p style="margin-top:10px;">
-        Instructor: Professor Xutong Liu<br>
-        Built & maintained by TA Faiz Ahmed
-      </p>
-
-      <div class="output">
-        <h2 style="margin-top:16px;">Tester Output</h2>
-        <pre id="out">(waiting)</pre>
-      </div>
-
-      <div class="footer">
-        Passing here does not guarantee Canvas credit. This is a debugging helper.
-      </div>
+      <h3>Paste Project1.java</h3>
+      <textarea id="code"></textarea>
+      <br><br>
+      <button class="run" onclick="runTests()">Run Tests (Ctrl+Enter)</button>
+      <button class="secondary" onclick="clearAll()">Clear</button>
     </div>
 
-    <div class="card editor">
-      <h2>Paste Project1.java</h2>
-      <textarea id="code" spellcheck="false" placeholder="// Paste your complete Project1.java here"></textarea>
-      <div class="toolbar">
-        <button class="action run" id="runBtn">Run tests (Ctrl+Enter)</button>
-        <button class="action secondary" id="clearBtn">Clear (Ctrl+L)</button>
-        <button class="action secondary" id="templateBtn">Template (Ctrl+K)</button>
-      </div>
-      <p style="margin:0; color:var(--muted); font-size:12px;">
-        Tip: press <b>?</b> to see shortcuts. We save drafts locally with Ctrl+S.
-      </p>
+    <div class="card">
+      <h3>Tester Output</h3>
+      <div id="out">(waiting)</div>
     </div>
   </div>
 </div>
 
 <script>
-/* =========================
-   Elements
-   ========================= */
-const codeEl = document.getElementById("code");
-const outEl = document.getElementById("out");
-const statusText = document.getElementById("statusText");
-const runBtn = document.getElementById("runBtn");
-const clearBtn = document.getElementById("clearBtn");
-const templateBtn = document.getElementById("templateBtn");
-const toastEl = document.getElementById("toast");
-const modalEl = document.getElementById("modal");
+const codeEl=document.getElementById("code");
+const outEl=document.getElementById("out");
+const toastEl=document.getElementById("toast");
 
-/* =========================
-   Helpers
-   ========================= */
-function escapeHtml(s){
-  return (s ?? "").replace(/[&<>"']/g, c => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[c]));
-}
-
-function setStatus(kind, text){
-  statusText.classList.remove("status-ok","status-warn","status-err");
-  statusText.classList.add(kind === "ok" ? "status-ok" : kind === "err" ? "status-err" : "status-warn");
-  statusText.textContent = text;
-}
-
-let toastTimer = null;
 function toast(msg){
-  toastEl.textContent = msg;
+  toastEl.textContent=msg;
   toastEl.classList.add("show");
-  if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toastEl.classList.remove("show"), 1800);
+  setTimeout(()=>toastEl.classList.remove("show"),1600);
 }
 
-/* =========================
-   Theme
-   ========================= */
-function toggleTheme(){
-  const cur = document.body.getAttribute("data-theme") || "dark";
-  const next = cur === "dark" ? "light" : "dark";
-  document.body.setAttribute("data-theme", next);
-  toast(next === "dark" ? "Dark mode" : "Light mode");
-}
-
-/* =========================
-   Shortcuts modal
-   ========================= */
-function toggleShortcuts(show){
-  if (show) modalEl.classList.add("show");
-  else modalEl.classList.remove("show");
-}
-modalEl.addEventListener("click", (e) => {
-  if (e.target === modalEl) toggleShortcuts(false);
-});
-
-/* =========================
-   Local draft storage
-   ========================= */
-const DRAFT_KEY = "tcss142_p1_draft";
-function saveDraft(){
-  localStorage.setItem(DRAFT_KEY, codeEl.value);
-  toast("Draft saved");
-}
-function loadDraft(){
-  const v = localStorage.getItem(DRAFT_KEY);
-  if (v == null){ toast("No saved draft"); return; }
-  codeEl.value = v;
-  toast("Draft loaded");
-}
-
-/* =========================
-   Template (safe stub, no solution)
-   ========================= */
-function insertTemplate(){
-  const stub =
-`/*
- * Course: TCSS142 - Programming Principles
- * File Name: Project1.java
- * Assignment: Project 1
- * Instructor: Dr. Liu
- */
-
-public class Project1 {
-    public static final int SIZE = 2;
-
-    public static void main(String[] args) {
-        // Call your helper methods here.
-    }
-}
-`;
-  // Only insert if empty, otherwise confirm via toast
-  if (codeEl.value.trim()){
-    toast("Template not inserted (editor not empty)");
-    return;
-  }
-  codeEl.value = stub;
-  toast("Template inserted");
-}
-
-/* =========================
-   Backend call + rendering
-   ========================= */
-async function runTests(){
-  const code = codeEl.value;
-  if (!code.trim()){
-    setStatus("warn","Idle");
-    outEl.textContent = "Paste Project1.java first.";
-    toast("Paste code first");
-    return;
-  }
-
-  setStatus("warn","Running");
-  outEl.textContent = "Running tests...";
-  runBtn.disabled = true;
-
-  let text = "";
-  try{
-    const res = await fetch("/run",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ code })
-    });
-    text = await res.text();
-  } catch (e){
-    setStatus("err","Network error");
-    outEl.textContent = "Network error calling /run.";
-    runBtn.disabled = false;
-    return;
-  }
-
-  renderResult(text);
-  runBtn.disabled = false;
+function escapeHtml(s){
+  return (s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 }
 function showSpaces(s){
-  if (s === "") return "<span style='opacity:.6'>(empty line)</span>";
-  return escapeHtml(s).replace(/ /g, "·");
+  if(s==="")return"(empty)";
+  return escapeHtml(s).replace(/ /g,"·");
+}
+
+async function runTests(){
+  const res=await fetch("/run",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code:codeEl.value})});
+  const text=await res.text();
+  renderResult(text);
 }
 
 function renderResult(raw){
-  raw = raw || "";
-
-  // PASS
-  if (raw.startsWith("STATUS:PASS")){
-    setStatus("ok","PASS");
-    outEl.innerHTML = `
-      <div class="result ok">
-        <div class="resultTitle">✅ PASS</div>
-        <div class="resultText">
-          Your Space Needle output matches the official reference exactly.
-        </div>
-      </div>
-    `;
+  if(raw.startsWith("STATUS:PASS")){
+    outEl.innerHTML=`<div class="result ok"><div class="resultTitle">✅ PASS</div>Your output matches exactly.</div>`;
     toast("PASS");
-    confettiBurst();
     return;
   }
-
-  // GENERIC ERROR
-  if (raw.startsWith("STATUS:ERROR")){
-    setStatus("err","ERROR");
-    const msg = raw.match(/MESSAGE:(.*)/)?.[1] ?? "Error";
-    outEl.innerHTML = `
-      <div class="result err">
-        <div class="resultTitle">❌ ERROR</div>
-        <div class="resultText">${escapeHtml(msg)}</div>
-      </div>
-    `;
-    toast("Fix the error");
+  if(raw.startsWith("STATUS:COMPILE_ERROR")){
+    outEl.innerHTML=`<div class="result err"><div class="resultTitle">❌ COMPILE ERROR</div><pre>${escapeHtml(raw)}</pre></div>`;
+    toast("Compile error");
     return;
   }
-
-  // COMPILE ERROR
-  if (raw.startsWith("STATUS:COMPILE_ERROR")){
-    setStatus("err","COMPILE");
-    const details = raw.replace("STATUS:COMPILE_ERROR\nDETAILS:\n","");
-    outEl.innerHTML = `
-      <div class="result err">
-        <div class="resultTitle">❌ COMPILATION FAILED</div>
-        <div class="resultText">Fix the errors below and try again.</div>
-        <pre>${escapeHtml(details)}</pre>
-      </div>
-    `;
-    toast("Compile failed");
-    return;
-  }
-
-  // LINE COUNT
-  if (raw.startsWith("STATUS:LINE_COUNT")){
-    setStatus("warn","MISMATCH");
-    const exp = raw.match(/EXPECTED:(\d+)/)?.[1];
-    const got = raw.match(/GOT:(\d+)/)?.[1];
-    outEl.innerHTML = `
+  if(raw.startsWith("STATUS:MISMATCH")){
+    const l=raw.match(/LINE:(\d+)/)[1];
+    const e=raw.match(/EXPECTED:(.*)/)[1];
+    const g=raw.match(/GOT:(.*)/)[1];
+    outEl.innerHTML=`
       <div class="result warn">
-        <div class="resultTitle">⚠️ LINE COUNT MISMATCH</div>
-        <div class="resultText">
-          Expected <b>${exp}</b> lines, but your program printed <b>${got}</b>.
-        </div>
-        <div class="hint">
-          Hint: check loop bounds and how many times each section prints.
-        </div>
-      </div>
-    `;
-    toast("Line count mismatch");
-    return;
-  }
-
-  // OUTPUT MISMATCH
-  if (raw.startsWith("STATUS:MISMATCH")){
-    setStatus("warn","MISMATCH");
-    const line = raw.match(/LINE:(\d+)/)?.[1];
-    const expected = raw.match(/EXPECTED:(.*)/)?.[1] ?? "";
-    const got = raw.match(/GOT:(.*)/)?.[1] ?? "";
-
-    outEl.innerHTML = `
-      <div class="result warn">
-        <div class="resultTitle">⚠️ MISMATCH AT LINE ${line}</div>
-        <div class="resultText">
-          Compare the two lines below. Spacing matters.
-        </div>
-
+        <div class="resultTitle">⚠️ Mismatch at line ${l}</div>
         <table>
-          <tr>
-            <th>Expected</th>
-            <td class="mono">${showSpaces(expected)}</td>
-          </tr>
-          <tr>
-            <th>Your output</th>
-            <td class="mono">${showSpaces(got)}</td>
-          </tr>
+          <tr><th>Expected</th><td>${showSpaces(e)}</td></tr>
+          <tr><th>Your output</th><td>${showSpaces(g)}</td></tr>
         </table>
-
-        <div class="hint">
-          Tip: Leading spaces and repeated characters must match exactly.
-        </div>
-      </div>
-    `;
-    toast(`Mismatch line ${line}`);
+        <div class="hint">Spacing matters.</div>
+      </div>`;
+    toast("Mismatch");
     return;
   }
-
-  // TIMEOUT
-  if (raw.startsWith("STATUS:TIMEOUT")){
-    setStatus("err","TIMEOUT");
-    outEl.innerHTML = `
-      <div class="result err">
-        <div class="resultTitle">⏱️ TIMEOUT</div>
-        <div class="resultText">
-          Your program ran too long. Check for infinite loops.
-        </div>
-      </div>
-    `;
-    toast("Timeout");
-    return;
-  }
-
-  // FALLBACK
-  setStatus("warn","UNKNOWN");
-  outEl.textContent = raw;
+  outEl.textContent=raw;
 }
 
-  if (raw.startsWith("STATUS:ERROR")){
-    setStatus("err","ERROR");
-    const msg = raw.match(/MESSAGE:(.*)/)?.[1] ?? "Error";
-    outEl.innerHTML = `❌ ${msg}\n`;
-    toast("Fix the error");
-    return;
-  }
-
-  if (raw.startsWith("STATUS:COMPILE_ERROR")){
-    setStatus("err","COMPILE");
-    outEl.innerHTML =
-      "❌ Compilation failed.\n\n" +
-      raw.replace("STATUS:COMPILE_ERROR\nDETAILS:\n",""); // cleaner
-    toast("Compile failed");
-    return;
-  }
-
-  if (raw.startsWith("STATUS:LINE_COUNT")){
-    setStatus("warn","MISMATCH");
-    const exp = raw.match(/EXPECTED:(\d+)/)?.[1];
-    const got = raw.match(/GOT:(\d+)/)?.[1];
-    outEl.innerHTML =
-      `⚠️ Line count mismatch.\nExpected ${exp}, got ${got}.\n\n` +
-      "Hint: check loop bounds and section counts.\n";
-    toast("Line count mismatch");
-    return;
-  }
-
-  if (raw.startsWith("STATUS:MISMATCH")){
-    setStatus("warn","MISMATCH");
-    const line = raw.match(/LINE:(\d+)/)?.[1];
-    const expected = raw.match(/EXPECTED:(.*)/)?.[1] ?? "";
-    const got = raw.match(/GOT:(.*)/)?.[1] ?? "";
-
-    outEl.innerHTML =
-      `⚠️ Mismatch at line ${line}\n\n` +
-      `Expected: ${expected}\n` +
-      `Got:      ${got}\n\n` +
-      "Hint: spacing and repeated characters must match exactly.\n";
-    toast(`Mismatch line ${line}`);
-    return;
-  }
-
-  if (raw.startsWith("STATUS:TIMEOUT")){
-    setStatus("err","TIMEOUT");
-    outEl.innerHTML =
-      "⏱️ Program timed out.\n\n" +
-      "Hint: check for infinite loops or excessive printing.\n";
-    toast("Timeout");
-    return;
-  }
-
-  // Unknown response
-  setStatus("warn","UNKNOWN");
-  outEl.textContent = raw;
+function clearAll(){
+  codeEl.value="";
+  outEl.textContent="(waiting)";
 }
 
-/* =========================
-   Buttons
-   ========================= */
-runBtn.addEventListener("click", runTests);
-clearBtn.addEventListener("click", () => {
-  codeEl.value = "";
-  outEl.textContent = "(waiting)";
-  setStatus("warn","Idle");
-  toast("Cleared");
-});
-templateBtn.addEventListener("click", insertTemplate);
-
-/* =========================
-   Keyboard shortcuts
-   ========================= */
-document.addEventListener("keydown", (e) => {
-  // Open shortcuts
-  if (!e.ctrlKey && !e.metaKey && e.key === "?"){
-    e.preventDefault();
-    toggleShortcuts(true);
-    return;
-  }
-  // Escape closes modal
-  if (e.key === "Escape"){
-    toggleShortcuts(false);
-    return;
-  }
-
-  const ctrl = e.ctrlKey || e.metaKey; // support mac too
-
-  if (ctrl && e.key === "Enter"){
-    e.preventDefault();
-    runTests();
-    return;
-  }
-  if (ctrl && (e.key === "l" || e.key === "L")){
-    e.preventDefault();
-    clearBtn.click();
-    return;
-  }
-  if (ctrl && (e.key === "k" || e.key === "K")){
-    e.preventDefault();
-    insertTemplate();
-    return;
-  }
-  if (ctrl && (e.key === "s" || e.key === "S")){
-    e.preventDefault();
-    saveDraft();
-    return;
-  }
-  if (ctrl && (e.key === "o" || e.key === "O")){
-    e.preventDefault();
-    loadDraft();
-    return;
-  }
-  if (ctrl && e.key === "/"){
-    e.preventDefault();
-    toggleCommentSelection();
-    return;
-  }
-});
-
-// Basic toggle comment for selected lines in textarea
-function toggleCommentSelection(){
-  const start = codeEl.selectionStart;
-  const end = codeEl.selectionEnd;
-  if (start === end){
-    toast("Select lines first");
-    return;
-  }
-  const text = codeEl.value;
-  const before = text.slice(0, start);
-  const sel = text.slice(start, end);
-  const after = text.slice(end);
-
-  const lines = sel.split("\n");
-  const allCommented = lines.every(line => line.trim() === "" || line.trim().startsWith("//"));
-  const newLines = lines.map(line => {
-    if (line.trim() === "") return line;
-    if (allCommented){
-      // remove first occurrence of //
-      const idx = line.indexOf("//");
-      return idx >= 0 ? line.slice(0, idx) + line.slice(idx + 2) : line;
-    } else {
-      return "//" + line;
-    }
-  });
-
-  const replaced = newLines.join("\n");
-  codeEl.value = before + replaced + after;
-  codeEl.selectionStart = start;
-  codeEl.selectionEnd = start + replaced.length;
-  toast(allCommented ? "Uncommented" : "Commented");
-}
-
-/* =========================
-   Cursor + glow follow
-   ========================= */
-const cursor = document.getElementById("cursor");
-const glow = document.getElementById("cursorGlow");
-let mouseX = window.innerWidth / 2;
-let mouseY = window.innerHeight / 2;
-let curX = mouseX;
-let curY = mouseY;
-
-window.addEventListener("mousemove", (e) => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-});
-
-function animateCursor(){
-  // Smooth follow
-  curX += (mouseX - curX) * 0.18;
-  curY += (mouseY - curY) * 0.18;
-  cursor.style.left = curX + "px";
-  cursor.style.top = curY + "px";
-  glow.style.left = curX + "px";
-  glow.style.top = curY + "px";
-  requestAnimationFrame(animateCursor);
-}
-animateCursor();
-
-/* =========================
-   DVD logo bounce
-   ========================= */
-const dvd = document.getElementById("dvd");
-let dx = 1.2, dy = 1.05;
-let x = 28, y = 110;
-function stepDVD(){
-  const w = dvd.offsetWidth;
-  const h = dvd.offsetHeight;
-  const maxX = window.innerWidth - w - 8;
-  const maxY = window.innerHeight - h - 8;
-
-  x += dx;
-  y += dy;
-
-  let bounced = false;
-  if (x <= 8){ x = 8; dx = Math.abs(dx); bounced = true; }
-  if (x >= maxX){ x = maxX; dx = -Math.abs(dx); bounced = true; }
-  if (y <= 8){ y = 8; dy = Math.abs(dy); bounced = true; }
-  if (y >= maxY){ y = maxY; dy = -Math.abs(dy); bounced = true; }
-
-  dvd.style.left = x + "px";
-  dvd.style.top = y + "px";
-
-  // Tiny speed jitter on bounce for fun
-  if (bounced){
-    dx += (Math.random() - 0.5) * 0.08;
-    dy += (Math.random() - 0.5) * 0.08;
-    dx = Math.max(0.7, Math.min(2.0, dx));
-    dy = Math.max(0.7, Math.min(2.0, dy));
-  }
-
-  requestAnimationFrame(stepDVD);
-}
-stepDVD();
-
-/* =========================
-   Confetti burst (simple)
-   ========================= */
-const confettiCanvas = document.getElementById("confetti");
-const ctx = confettiCanvas.getContext("2d");
-function resizeCanvas(){
-  confettiCanvas.width = window.innerWidth;
-  confettiCanvas.height = window.innerHeight;
-}
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
-
-let confetti = [];
-function confettiBurst(){
-  const n = 140;
-  const cx = window.innerWidth * 0.5;
-  const cy = window.innerHeight * 0.22;
-
-  for (let i=0;i<n;i++){
-    confetti.push({
-      x: cx,
-      y: cy,
-      vx: (Math.random()-0.5)*9,
-      vy: Math.random()*-10 - 6,
-      g: 0.22 + Math.random()*0.12,
-      r: 2 + Math.random()*3,
-      life: 120 + Math.random()*40,
-      rot: Math.random()*Math.PI,
-      vr: (Math.random()-0.5)*0.22
-    });
-  }
-  animateConfetti();
-}
-let confettiRunning = false;
-function animateConfetti(){
-  if (confettiRunning) return;
-  confettiRunning = true;
-
-  function tick(){
-    ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
-    confetti = confetti.filter(p => p.life > 0);
-
-    for (const p of confetti){
-      p.life -= 1;
-      p.vy += p.g;
-      p.x += p.vx;
-      p.y += p.vy;
-      p.rot += p.vr;
-
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot);
-      ctx.fillStyle = "rgba(255,255,255,0.9)";
-      ctx.fillRect(-p.r, -p.r, p.r*2.2, p.r*1.2);
-      ctx.restore();
-    }
-
-    if (confetti.length > 0){
-      requestAnimationFrame(tick);
-    } else {
-      ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
-      confettiRunning = false;
-    }
-  }
+/* Cursor follow */
+let mx=0,my=0,cx=0,cy=0;
+document.addEventListener("mousemove",e=>{mx=e.clientX;my=e.clientY});
+function tick(){
+  cx+=(mx-cx)*.18; cy+=(my-cy)*.18;
+  cursor.style.left=cx+"px"; cursor.style.top=cy+"px";
+  glow.style.left=cx+"px"; glow.style.top=cy+"px";
   requestAnimationFrame(tick);
 }
+tick();
 
-/* Load saved draft automatically if present */
-(function init(){
-  const saved = localStorage.getItem(DRAFT_KEY);
-  if (saved && !codeEl.value.trim()){
-    codeEl.value = saved;
-    setStatus("warn","Idle");
-  }
-})();
+/* DVD bounce */
+const dvd=document.getElementById("dvd");
+let x=40,y=80,dx=1.3,dy=1.1;
+function bounce(){
+  x+=dx;y+=dy;
+  if(x<0||x+dvd.offsetWidth>innerWidth)dx*=-1;
+  if(y<0||y+dvd.offsetHeight>innerHeight)dy*=-1;
+  dvd.style.left=x+"px"; dvd.style.top=y+"px";
+  requestAnimationFrame(bounce);
+}
+bounce();
+
+/* Shortcut */
+document.addEventListener("keydown",e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){runTests();e.preventDefault();}
+});
 </script>
 
 </body>
