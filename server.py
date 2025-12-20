@@ -39,11 +39,11 @@ def load_reference(size):
     return block
 
 
-# ✅ FIXED HERE
+# ✅ SAFE SIZE REWRITE (no regex crash)
 def rewrite_size(code, size):
     return re.sub(
         r"(public\s+static\s+final\s+int\s+SIZE\s*=\s*)\d+",
-        r"\g<1>" + str(size),
+        lambda m: m.group(1) + str(size),
         code
     )
 
@@ -75,9 +75,13 @@ def run():
                     flags=re.MULTILINE
                 ))
 
+            # Compile
             cs = subprocess.run(
                 ["javac", "Project1.java"],
-                cwd=tmp, capture_output=True, text=True, timeout=RUN_TIMEOUT
+                cwd=tmp,
+                capture_output=True,
+                text=True,
+                timeout=RUN_TIMEOUT
             )
             if cs.returncode != 0:
                 return Response(
@@ -85,41 +89,44 @@ def run():
                     200
                 )
 
-            runp = subprocess.run(
+            # Run
+            rp = subprocess.run(
                 ["java", "Project1"],
-                cwd=tmp, capture_output=True, text=True, timeout=RUN_TIMEOUT
+                cwd=tmp,
+                capture_output=True,
+                text=True,
+                timeout=RUN_TIMEOUT
             )
 
-            student = normalize(runp.stdout)
+            student = normalize(rp.stdout)
             reference = load_reference(size)
 
-            if len(student) < len(reference):
+            # ✅ EXACT LINE COUNT REQUIRED
+            if len(student) != len(reference):
                 return Response(
                     "STATUS:LINE_COUNT\n"
                     f"SIZE:{size}\n"
                     f"EXPECTED_COUNT:{len(reference)}\n"
                     f"GOT_COUNT:{len(student)}\n"
-                    "HINT:Your output ends early. A required structural section is missing.\n\n"
-                    "EXPECTED (ending):\n" +
+                    "\nEXPECTED (ending):\n" +
                     "\n".join(reference[-6:]) +
                     "\n\nYOUR OUTPUT (ending):\n" +
                     "\n".join(student[-6:]),
                     200
                 )
 
-            min_len = min(len(student), len(reference))
-            for i in range(min_len):
-                a, b = student[i], reference[i]
+            # Line-by-line comparison
+            for i, (a, b) in enumerate(zip(student, reference), start=1):
                 if a != b:
                     hint = (
-                        "Indentation differs. Check how many spaces are printed."
+                        "Indentation differs (number of spaces)."
                         if a.lstrip() == b.lstrip()
                         else "Characters or spacing differ on this line."
                     )
                     return Response(
                         "STATUS:MISMATCH\n"
                         f"SIZE:{size}\n"
-                        f"LINE:{i+1}\n"
+                        f"LINE:{i}\n"
                         f"EXPECTED:{b}\n"
                         f"GOT:{a}\n"
                         f"HINT:{hint}",
