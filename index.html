@@ -2,198 +2,196 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>TCSS 142 · Project 1 Space Needle Tester</title>
+<title>TCSS 142 · Project 1 Tester</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
 :root{
-  --bg-gradient: radial-gradient(circle at top, #181c3a 0%, #050810 55%, #02040a 100%);
-  --card-bg: rgba(17,24,39,.88);
-  --border: rgba(148,163,184,.4);
-  --text: #e5e7eb;
-  --muted: #9ca3af;
+  --bg:#02040a;
+  --glass:rgba(17,24,39,.75);
+  --border:rgba(148,163,184,.35);
+  --text:#e5e7eb;
+  --muted:#9ca3af;
 
   --ok:#22c55e;
   --warn:#fbbf24;
   --err:#fb7185;
 
-  --shadow: 0 22px 60px rgba(0,0,0,.75);
+  --shadow:0 30px 90px rgba(0,0,0,.8);
 }
 
+/* RESET */
 *{box-sizing:border-box}
-
+html,body{height:100%}
 body{
   margin:0;
-  min-height:100vh;
   font-family:Inter,system-ui,sans-serif;
   color:var(--text);
-  background:var(--bg-gradient);
+  background:
+    radial-gradient(circle at 20% 10%, rgba(56,189,248,.20), transparent 45%),
+    radial-gradient(circle at 80% 0%, rgba(168,85,247,.22), transparent 50%),
+    radial-gradient(circle at 50% 100%, rgba(34,197,94,.20), transparent 55%),
+    var(--bg);
   overflow-x:hidden;
 }
 
-/* Aurora background */
-body::before{
-  content:"";
-  position:fixed;
-  inset:-40%;
-  background:
-    radial-gradient(circle at 10% 20%, rgba(56,189,248,.25), transparent 45%),
-    radial-gradient(circle at 80% 0%, rgba(168,85,247,.24), transparent 50%),
-    radial-gradient(circle at 50% 100%, rgba(34,197,94,.22), transparent 55%);
-  filter: blur(22px);
-  animation: aurora 26s ease-in-out infinite alternate;
-  z-index:-2;
-}
-@keyframes aurora{
-  from{transform:translate(-3%,-2%) scale(1.03)}
-  to{transform:translate(3%,2%) scale(1.06)}
-}
-
-/* ---------- DVD LOGO (UNCHANGED STYLE) ---------- */
-.dvd-layer{
+/* DVD AMBIENT */
+.dvd{
   position:fixed;
   inset:0;
   pointer-events:none;
+  opacity:.15;
   z-index:-1;
 }
 .dvd-x{
   position:absolute;
-  width:110px;
-  height:66px;
-  animation:dvd-x 10s linear infinite alternate;
+  width:140px;
+  animation:dvd-x 14s linear infinite alternate;
 }
 .dvd-y{
-  width:110px;
-  height:66px;
-  animation:dvd-y 6s linear infinite alternate;
+  animation:dvd-y 9s linear infinite alternate;
 }
 @keyframes dvd-x{
   from{transform:translateX(0)}
-  to{transform:translateX(calc(100vw - 110px))}
+  to{transform:translateX(calc(100vw - 140px))}
 }
 @keyframes dvd-y{
   from{transform:translateY(0)}
-  to{transform:translateY(calc(100vh - 66px))}
+  to{transform:translateY(calc(100vh - 80px))}
 }
 
-/* ---------- LAYOUT ---------- */
-.main{
+/* HERO */
+.hero-wrap{
   max-width:1100px;
-  margin:28px auto;
-  padding:16px;
-  position:relative;
-  z-index:1;
+  margin:0 auto;
+  padding:40px 20px 10px;
 }
-
 .hero{
-  display:flex;
-  justify-content:space-between;
-  gap:16px;
-  margin-bottom:18px;
+  background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(56,189,248,.12),rgba(168,85,247,.15));
+  border-radius:28px;
+  padding:34px;
+  box-shadow:var(--shadow);
+  border:1px solid var(--border);
+  backdrop-filter:blur(22px);
 }
 .hero h1{
   margin:0;
-  font-size:32px;
-  font-weight:700;
+  font-size:40px;
+  font-weight:800;
+  letter-spacing:.02em;
 }
 .hero p{
-  margin:6px 0 0;
-  font-size:14px;
+  margin:10px 0 0;
   color:var(--muted);
-}
-.meta{
-  text-align:right;
-  font-size:12px;
-  color:var(--muted);
+  font-size:15px;
+  max-width:720px;
 }
 
-/* Cards */
+/* MAIN */
+.main{
+  max-width:1100px;
+  margin:24px auto;
+  padding:0 20px 40px;
+}
+
 .grid{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:16px;
+  gap:20px;
 }
 @media(max-width:900px){
   .grid{grid-template-columns:1fr}
 }
 
+/* GLASS CARDS */
 .card{
-  background:var(--card-bg);
+  background:var(--glass);
   border:1px solid var(--border);
-  border-radius:18px;
-  padding:18px;
+  border-radius:22px;
+  padding:20px;
   box-shadow:var(--shadow);
   backdrop-filter:blur(22px);
 }
 
+.card h3{
+  margin:0 0 10px;
+  font-size:18px;
+  font-weight:700;
+}
+
+/* EDITOR */
 textarea{
   width:100%;
-  height:280px;
+  height:320px;
   background:#020617;
   color:var(--text);
   border:1px solid var(--border);
-  border-radius:10px;
-  padding:12px;
+  border-radius:14px;
+  padding:14px;
   font-family:"JetBrains Mono",monospace;
   font-size:13px;
   resize:vertical;
 }
 
-.button-row{
+/* BUTTONS */
+.actions{
   display:flex;
-  gap:8px;
-  margin-top:8px;
+  gap:10px;
+  margin-top:12px;
 }
 button{
   border:none;
   border-radius:999px;
-  padding:8px 18px;
-  font-size:13px;
+  padding:10px 22px;
+  font-weight:700;
   cursor:pointer;
 }
-.run{background:#22c55e;color:#020617}
-.clear{background:#374151;color:var(--text)}
-
-.output{
-  margin-top:12px;
+.run{
+  background:linear-gradient(135deg,#22c55e,#38bdf8,#a855f7);
+  color:#020617;
+}
+.clear{
+  background:transparent;
+  border:1px dashed var(--border);
+  color:var(--muted);
 }
 
+/* RESULTS */
 .result{
-  border-radius:14px;
-  padding:14px;
+  border-radius:16px;
+  padding:16px;
   border:1px solid transparent;
 }
-.ok{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.4)}
-.warn{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.4)}
-.err{background:rgba(248,113,133,.15);border-color:rgba(248,113,133,.4)}
-
-pre{
-  margin:0;
-  white-space:pre;
-  overflow:auto;
-  font-family:"JetBrains Mono",monospace;
-  font-size:12px;
-}
+.result.ok{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.45)}
+.result.warn{background:rgba(251,191,36,.15);border-color:rgba(251,191,36,.45)}
+.result.err{background:rgba(248,113,133,.18);border-color:rgba(248,113,133,.45)}
 
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:8px;
+  margin-top:10px;
 }
 th,td{
   border:1px solid var(--border);
-  padding:6px;
+  padding:8px;
   font-family:"JetBrains Mono",monospace;
   font-size:12px;
 }
-th{color:var(--muted);width:130px}
+th{color:var(--muted);width:140px}
+
+pre{
+  background:#020617;
+  padding:12px;
+  border-radius:12px;
+  overflow:auto;
+}
 
 .hint{
-  margin-top:6px;
+  margin-top:8px;
   font-size:12px;
   color:var(--muted);
 }
@@ -202,33 +200,30 @@ th{color:var(--muted);width:130px}
 
 <body>
 
-<!-- DVD background -->
-<div class="dvd-layer">
+<!-- DVD -->
+<div class="dvd">
   <div class="dvd-x">
     <img class="dvd-y" src="https://vgmoose.bdns.dev/dvd_logo.png" alt="dvd">
   </div>
 </div>
 
-<div class="main">
-
+<div class="hero-wrap">
   <div class="hero">
-    <div>
-      <h1>TCSS 142 · Project 1 Tester</h1>
-      <p>Paste <code>Project1.java</code>. Output is checked line-by-line against the official Space Needle.</p>
-    </div>
-    <div class="meta">
-      <div>Programming Principles</div>
-      <div>Instructor: Prof. Xutong Liu</div>
-      <div>TA: Faiz Ahmed</div>
-    </div>
+    <h1>TCSS 142 · Project 1</h1>
+    <p>
+      Space Needle ASCII Tester. Paste <b>Project1.java</b> below.
+      Your output is compared line-by-line against the official reference.
+    </p>
   </div>
+</div>
 
+<div class="main">
   <div class="grid">
 
     <div class="card">
       <h3>Project1.java</h3>
       <textarea id="code" placeholder="// Paste Project1.java here"></textarea>
-      <div class="button-row">
+      <div class="actions">
         <button class="run" onclick="runTests()">Run tests</button>
         <button class="clear" onclick="clearAll()">Clear</button>
       </div>
@@ -236,7 +231,7 @@ th{color:var(--muted);width:130px}
 
     <div class="card">
       <h3>Tester Output</h3>
-      <div class="output" id="out">(waiting)</div>
+      <div id="out">(waiting)</div>
     </div>
 
   </div>
@@ -250,7 +245,7 @@ function esc(s){
   return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 }
 function showSpaces(s){
-  if(s==="") return "(empty)";
+  if(s==="")return"(empty)";
   return esc(s).replace(/ /g,"·");
 }
 
