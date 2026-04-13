@@ -1,316 +1,1592 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>TCSS 142 · Project 1 Space Needle Tester</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#070c18" />
+  <title>TCSS 142 · Project 1 Strict Tester</title>
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 
-<style>
-/* === SAME THEME / COLORS AS PROJECT 3 === */
-:root{
-  --bg-gradient: radial-gradient(circle at top, #181c3a 0%, #050810 55%, #02040a 100%);
-  --card-bg: rgba(17,24,39,.88);
-  --border: rgba(148,163,184,.4);
-  --text: #e5e7eb;
-  --muted: #9ca3af;
-  --ok:#22c55e;
-  --info:#38bdf8;
-  --err:#fb7185;
-  --shadow: 0 22px 60px rgba(0,0,0,.75);
-}
+  <style>
+    :root {
+      --bg: #050816;
+      --bg-2: #091128;
+      --bg-3: #0d1836;
+      --panel: rgba(11, 17, 35, 0.72);
+      --panel-2: rgba(9, 14, 29, 0.86);
+      --panel-soft: rgba(255, 255, 255, 0.055);
+      --line: rgba(255, 255, 255, 0.10);
+      --line-strong: rgba(255, 255, 255, 0.18);
+      --text: #eef3ff;
+      --muted: #9aa8c7;
+      --subtle: #7483a7;
+      --accent: #74e7ff;
+      --accent-2: #8b5cf6;
+      --accent-3: #34d399;
+      --accent-4: #fb7185;
+      --success: #2dd4bf;
+      --warning: #fbbf24;
+      --danger: #fb7185;
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --shadow-xl: 0 30px 120px rgba(0, 0, 0, 0.46);
+      --shadow-lg: 0 22px 80px rgba(0, 0, 0, 0.34);
+      --editor-gutter: 72px;
+      --mx: 50%;
+      --my: 20%;
+    }
 
-body{
-  margin:0;
-  min-height:100vh;
-  font-family:Inter,system-ui,sans-serif;
-  color:var(--text);
-  background:var(--bg-gradient);
-  display:flex;
-  justify-content:center;
-  overflow-x:hidden;
-}
+    * {
+      box-sizing: border-box;
+    }
 
-/* Aurora background */
-body::before,
-body::after{
-  content:"";
-  position:fixed;
-  inset:-40%;
-  z-index:-2;
-  background:
-    radial-gradient(circle at 10% 20%, rgba(56,189,248,.25), transparent 45%),
-    radial-gradient(circle at 80% 0%, rgba(168,85,247,.24), transparent 50%),
-    radial-gradient(circle at 50% 100%, rgba(34,197,94,.22), transparent 55%);
-  filter:blur(22px);
-  animation: aurora 26s ease-in-out infinite alternate;
-}
-body::after{
-  animation-duration:38s;
-  opacity:.7;
-}
+    html {
+      scroll-behavior: smooth;
+    }
 
-@keyframes aurora{
-  0%{transform:translate(-3%,-2%) scale(1.02)}
-  100%{transform:translate(3%,4%) scale(1.06)}
-}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 18% -5%, rgba(116, 231, 255, 0.18), transparent 28%),
+        radial-gradient(circle at 88% 0%, rgba(139, 92, 246, 0.18), transparent 22%),
+        radial-gradient(circle at 70% 100%, rgba(52, 211, 153, 0.14), transparent 28%),
+        linear-gradient(180deg, #061021 0%, #050816 50%, #040611 100%);
+      overflow-x: hidden;
+    }
 
-.main{
-  width:100%;
-  max-width:1120px;
-  padding:20px;
-}
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: -20%;
+      pointer-events: none;
+      z-index: -4;
+    }
 
-/* Cards */
-.card{
-  background:var(--card-bg);
-  border:1px solid var(--border);
-  border-radius:20px;
-  padding:18px 20px;
-  box-shadow:var(--shadow);
-  backdrop-filter:blur(22px);
-  margin-bottom:16px;
-}
+    body::before {
+      background:
+        radial-gradient(circle at 10% 20%, rgba(116, 231, 255, 0.16), transparent 18%),
+        radial-gradient(circle at 82% 16%, rgba(139, 92, 246, 0.16), transparent 20%),
+        radial-gradient(circle at 32% 80%, rgba(52, 211, 153, 0.12), transparent 18%),
+        radial-gradient(circle at 72% 74%, rgba(251, 113, 133, 0.10), transparent 16%);
+      filter: blur(34px);
+      animation: drift 26s ease-in-out infinite alternate;
+    }
 
-/* Header */
-.hero{
-  display:flex;
-  justify-content:space-between;
-  gap:16px;
-  margin-bottom:18px;
-}
+    body::after {
+      opacity: 0.42;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 84px 84px;
+      mask-image: radial-gradient(circle at center, rgba(0,0,0,1), rgba(0,0,0,0.28) 72%, transparent 100%);
+      transform: perspective(800px) rotateX(75deg) translateY(46vh) scale(1.5);
+      transform-origin: center top;
+    }
 
-.hero h1{
-  margin:0;
-  font-size:34px;
-}
+    .noise {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -3;
+      opacity: 0.034;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' /%3E%3C/svg%3E");
+    }
 
-.hero p{
-  color:var(--muted);
-  max-width:620px;
-  font-size:14px;
-}
+    .spotlight {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -2;
+      background: radial-gradient(640px circle at var(--mx) var(--my), rgba(116, 231, 255, 0.12), transparent 42%);
+      mix-blend-mode: screen;
+    }
 
-.status{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  font-size:12px;
-}
+    .skip-link {
+      position: absolute;
+      left: 16px;
+      top: -64px;
+      z-index: 1000;
+      background: #ffffff;
+      color: #000000;
+      border-radius: 999px;
+      padding: 12px 16px;
+      text-decoration: none;
+      font-weight: 800;
+      transition: top 0.2s ease;
+    }
 
-.dot{
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  background:var(--ok);
-  box-shadow:0 0 10px rgba(34,197,94,.9);
-}
+    .skip-link:focus {
+      top: 16px;
+    }
 
-/* Layout */
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:16px;
-}
-@media(max-width:900px){
-  .grid{grid-template-columns:1fr}
-}
+    .shell {
+      width: min(1480px, calc(100% - 28px));
+      margin: 20px auto 36px;
+      position: relative;
+    }
 
-textarea{
-  width:100%;
-  height:280px;
-  background:#020617;
-  color:var(--text);
-  font-family:"JetBrains Mono",monospace;
-  font-size:13px;
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:10px;
-  resize:vertical;
-}
+    .glass {
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03)),
+        rgba(8, 12, 25, 0.72);
+      backdrop-filter: blur(22px) saturate(150%);
+      box-shadow: var(--shadow-lg);
+    }
 
-pre{
-  background:#020617;
-  color:var(--text);
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:10px;
-  white-space:pre;
-  overflow:auto;
-  max-height:280px;
-  font-family:"JetBrains Mono",monospace;
-  font-size:12px;
-}
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 34px;
+      padding: clamp(28px, 4vw, 42px);
+      isolation: isolate;
+    }
 
-.buttons{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-top:8px;
-}
+    .hero::before {
+      content: "";
+      position: absolute;
+      right: -8%;
+      bottom: -46%;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(116, 231, 255, 0.18), rgba(116, 231, 255, 0));
+      filter: blur(10px);
+      z-index: -1;
+    }
 
-button{
-  border:none;
-  border-radius:999px;
-  padding:8px 18px;
-  font-size:13px;
-  cursor:pointer;
-  display:inline-flex;
-  gap:6px;
-  align-items:center;
-}
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+      gap: 28px;
+      align-items: end;
+    }
 
-button.primary{
-  background:linear-gradient(135deg,#22c55e,#38bdf8,#a855f7);
-  color:#020617;
-}
+    .hero-badges,
+    .toolbar,
+    .hero-actions,
+    .mini-grid,
+    .card-tools,
+    .status-row,
+    .insight-grid,
+    .quick-row,
+    .output-tools,
+    .editor-toolbar-left,
+    .editor-toolbar-right,
+    .footer-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
 
-button.secondary{
-  background:#020617;
-  color:var(--text);
-  border:1px solid var(--border);
-}
+    .pill,
+    .mini-pill,
+    .metric,
+    .shortcut {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      white-space: nowrap;
+    }
 
-button.ghost{
-  background:transparent;
-  color:var(--muted);
-  border:1px dashed var(--border);
-}
+    .pill {
+      padding: 10px 14px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #dce8ff;
+    }
 
-.footer{
-  text-align:center;
-  font-size:11px;
-  color:var(--muted);
-  margin-top:10px;
-}
-</style>
+    .hero h1 {
+      margin: 0;
+      max-width: 10.6ch;
+      font-size: clamp(36px, 5vw, 70px);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+    }
+
+    .hero h1 span {
+      display: block;
+      background: linear-gradient(135deg, #ffffff 0%, #dce6ff 36%, #74e7ff 66%, #f7a4ff 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 14px 42px rgba(116, 231, 255, 0.13));
+    }
+
+    .hero-copy {
+      max-width: 66ch;
+      margin-top: 16px;
+      font-size: clamp(15px, 1.55vw, 18px);
+      line-height: 1.7;
+      color: #cad8f6;
+    }
+
+    .hero-actions {
+      margin-top: 24px;
+    }
+
+    .button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 13px 18px;
+      font: inherit;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease, opacity 0.18s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+
+    .button:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .button.primary {
+      background: linear-gradient(135deg, #74e7ff 0%, #34d399 35%, #8b5cf6 72%, #f472b6 100%);
+      color: #04101f;
+      box-shadow: 0 16px 34px rgba(116, 231, 255, 0.22);
+    }
+
+    .button.secondary {
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .button.ghost {
+      border: 1px dashed rgba(255,255,255,0.20);
+      background: transparent;
+      color: #d7e2fb;
+    }
+
+    .button.sm {
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .status-card {
+      border-radius: 24px;
+      padding: 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 18px 44px rgba(0, 0, 0, 0.28);
+    }
+
+    .status-row {
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 18px rgba(45, 212, 191, 0.7);
+      flex: 0 0 auto;
+    }
+
+    .status-pill[data-state="running"] .status-dot {
+      background: var(--accent);
+      box-shadow: 0 0 18px rgba(116, 231, 255, 0.75);
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    .status-pill[data-state="warning"] .status-dot {
+      background: var(--warning);
+      box-shadow: 0 0 18px rgba(251, 191, 36, 0.8);
+    }
+
+    .status-pill[data-state="error"] .status-dot {
+      background: var(--danger);
+      box-shadow: 0 0 18px rgba(251, 113, 133, 0.75);
+    }
+
+    .status-note {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      margin: 0;
+    }
+
+    .mini-grid {
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .metric {
+      padding: 10px 12px;
+      min-width: 125px;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #dce8ff;
+    }
+
+    .metric strong {
+      font-size: 16px;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+    }
+
+    .main-grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .card {
+      border-radius: var(--radius-xl);
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .card-subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .editor-toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+
+    .editor-toolbar-left,
+    .editor-toolbar-right {
+      gap: 8px;
+    }
+
+    .editor-shell {
+      position: relative;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)),
+        #050913;
+      overflow: hidden;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 12px 34px rgba(0,0,0,0.26);
+    }
+
+    .editor-shell.dragover {
+      border-color: rgba(116,231,255,0.60);
+      box-shadow: 0 0 0 1px rgba(116,231,255,0.3), inset 0 0 60px rgba(116,231,255,0.08), 0 12px 34px rgba(0,0,0,0.26);
+    }
+
+    .editor-topbar,
+    .terminal-topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    }
+
+    .traffic {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .traffic span {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .traffic span:nth-child(1) { background: #ff5f57; }
+    .traffic span:nth-child(2) { background: #febc2e; }
+    .traffic span:nth-child(3) { background: #28c840; }
+
+    .topbar-label {
+      color: var(--muted);
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .file-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      color: #dbe6ff;
+      font-size: 12px;
+    }
+
+    .editor-wrap {
+      position: relative;
+      display: grid;
+      grid-template-columns: var(--editor-gutter) minmax(0, 1fr);
+      min-height: 520px;
+      max-height: 72vh;
+    }
+
+    .line-numbers {
+      margin: 0;
+      padding: 16px 12px 16px 0;
+      overflow: hidden;
+      text-align: right;
+      border-right: 1px solid rgba(255,255,255,0.06);
+      color: #5f6f93;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      font: 500 13px/1.7 "JetBrains Mono", ui-monospace, monospace;
+      user-select: none;
+    }
+
+    .line-numbers span {
+      display: block;
+      height: 1.7em;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100%;
+      min-height: 520px;
+      margin: 0;
+      border: 0;
+      outline: none;
+      resize: vertical;
+      padding: 16px 18px;
+      color: #f4f7ff;
+      background: transparent;
+      font: 500 13px/1.7 "JetBrains Mono", ui-monospace, monospace;
+      white-space: pre;
+      overflow: auto;
+      tab-size: 4;
+      caret-color: var(--accent);
+    }
+
+    textarea::placeholder {
+      color: #5c6a8c;
+    }
+
+    .editor-footer,
+    .output-footer,
+    .meta-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .editor-footer {
+      margin-top: 12px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .meta-item {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      min-height: 86px;
+    }
+
+    .meta-label {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      margin-bottom: 8px;
+    }
+
+    .meta-value {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+
+    .meta-note {
+      color: var(--subtle);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .insight {
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      padding: 14px;
+    }
+
+    .insight h4 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    .insight p,
+    .insight li,
+    .helper-text,
+    .footer-note,
+    .tip-list li {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .tip-list,
+    .check-list,
+    .shortcut-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .check-list li + li,
+    .tip-list li + li,
+    .shortcut-list li + li {
+      margin-top: 6px;
+    }
+
+    .quick-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .quick-card {
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      padding: 14px;
+    }
+
+    .quick-card h4 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    .quick-card .value {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+
+    .terminal {
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: #03070f;
+      overflow: hidden;
+      position: relative;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 12px 34px rgba(0,0,0,0.26);
+    }
+
+    .terminal::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 100% 3px;
+      opacity: 0.10;
+    }
+
+    .output-tools {
+      gap: 8px;
+    }
+
+    pre {
+      margin: 0;
+      min-height: 360px;
+      max-height: 70vh;
+      overflow: auto;
+      padding: 18px;
+      color: #edf3ff;
+      font: 500 13px/1.7 "JetBrains Mono", ui-monospace, monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .terminal-status {
+      color: #b8c6e8;
+      font-size: 12px;
+    }
+
+    .side-card + .side-card,
+    .output-card + .card,
+    .stack .card + .card {
+      margin-top: 0;
+    }
+
+    .footer-bar {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .footer-row {
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .shortcut {
+      padding: 8px 10px;
+      font-size: 12px;
+      color: #dce6ff;
+    }
+
+    .kbd {
+      min-width: 24px;
+      padding: 4px 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: #ffffff;
+      text-align: center;
+      font: 700 11px/1 Inter, sans-serif;
+    }
+
+    .helper-text {
+      margin: 0;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 100;
+      max-width: min(420px, calc(100vw - 32px));
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(5, 9, 19, 0.92);
+      color: var(--text);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.36);
+      backdrop-filter: blur(16px);
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .accent-text {
+      color: #dff7ff;
+    }
+
+    .mono {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+    }
+
+    .subgrid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .run-inline-spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(4, 16, 31, 0.24);
+      border-top-color: rgba(4, 16, 31, 0.9);
+      border-radius: 50%;
+      display: none;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .button.loading .run-inline-spinner {
+      display: inline-block;
+    }
+
+    .button.loading .button-label {
+      opacity: 0.95;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.28); opacity: 0.86; }
+    }
+
+    @keyframes drift {
+      0% { transform: translate(-3%, -2%) scale(1.02); }
+      100% { transform: translate(3%, 4%) scale(1.08); }
+    }
+
+    @media (max-width: 1180px) {
+      .hero-grid,
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h1 {
+        max-width: none;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .editor-footer,
+      .quick-row,
+      .insight-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .shell {
+        width: min(100%, calc(100% - 16px));
+        margin-top: 8px;
+      }
+
+      .hero,
+      .card,
+      .footer-bar {
+        border-radius: 22px;
+      }
+
+      .editor-wrap {
+        min-height: 420px;
+      }
+
+      textarea,
+      .line-numbers {
+        font-size: 12px;
+      }
+
+      .editor-footer,
+      .quick-row,
+      .insight-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .status-row,
+      .card-header,
+      .editor-toolbar,
+      .terminal-topbar,
+      .editor-topbar,
+      .footer-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .editor-wrap {
+        grid-template-columns: 58px minmax(0, 1fr);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
 </head>
-
 <body>
-<div class="main">
+  <a class="skip-link" href="#editor">Skip to editor</a>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="spotlight" aria-hidden="true"></div>
 
-<header class="hero">
-  <div>
-    <h1>TCSS 142 · Project 1 Strict Tester</h1>
-    <p>
-      Paste your full <code>Project1.java</code> and run the official TA tester.
-      Output is checked <strong>line-by-line</strong> against the reference
-      <code>SpaceNeedle.txt</code>. Spacing matters.
-    </p>
+  <div class="shell">
+    <header class="hero glass">
+      <div class="hero-grid">
+        <div>
+          <div class="hero-badges" aria-label="Highlights">
+            <span class="pill">YOU GOT THIS!</span>
+            <span class="pill">drag-and-drop</span>
+            <span class="pill">Paste, run, compare</span>
+          </div>
+
+          <h1>
+            TCSS 142
+            <span>Project 1 spaceNeedle!</span>
+          </h1>
+
+          <p class="hero-copy">
+            In this project, you will practice reducing redundancy by defining and calling static methods, identifying structural
+repetition within shapes, and employing for loops and class-wide constants to control program output. Your
+program will draw an ASCII-art image of the world-famous Seattle Space Needle. The output size must scale
+automatically with the value of a single class constant.
+          </p>
+
+          <div class="hero-actions">
+            <button class="button primary" id="heroRunBtn" type="button">
+              <span class="run-inline-spinner" aria-hidden="true"></span>
+              <span class="button-label">Run tests</span>
+            </button>
+            <button class="button secondary" id="heroImportBtn" type="button">Import .java file</button>
+            <button class="button ghost" id="heroTemplateBtn" type="button">Insert template</button>
+            <button class="button ghost" id="heroDownloadBtn" type="button">Download Project1.java</button>
+          </div>
+        </div>
+
+        <aside class="status-card" aria-label="Current tester status">
+          <div class="status-row">
+            <div class="status-pill" id="statusPill" data-state="ready">
+              <span class="status-dot" aria-hidden="true"></span>
+              <span id="statusText">Ready</span>
+            </div>
+            <span class="file-chip" id="fileChip">Project1.java</span>
+          </div>
+
+          <p class="status-note" id="statusNote">
+            Paste your full file, then run the tester. Output is shown exactly as the backend returns it.
+          </p>
+
+          <div class="mini-grid">
+            <span class="metric"><span>Lines</span><strong id="heroLines">0</strong></span>
+            <span class="metric"><span>Chars</span><strong id="heroChars">0</strong></span>
+            <span class="metric"><span>Detected SIZE</span><strong id="heroSize">—</strong></span>
+          </div>
+        </aside>
+      </div>
+    </header>
+
+    <main class="main-grid">
+      <section class="stack">
+        <article class="card glass" id="editorCard">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Code editor</h2>
+              <p class="card-subtitle">
+                Built for fast iteration: autosave, drag-and-drop file loading, keyboard shortcuts,
+                line numbers, and a clean monospace editing surface.
+              </p>
+            </div>
+            <div class="card-tools">
+              <span class="shortcut"><span class="kbd">⌘/Ctrl</span><span class="kbd">Enter</span>Run</span>
+              <span class="shortcut"><span class="kbd">Tab</span>Indent</span>
+            </div>
+          </div>
+
+          <div class="editor-toolbar">
+            <div class="editor-toolbar-left">
+              <button class="button primary sm" id="runBtn" type="button">
+                <span class="run-inline-spinner" aria-hidden="true"></span>
+                <span class="button-label">Run tests</span>
+              </button>
+              <button class="button secondary sm" id="importBtn" type="button">Import</button>
+              <button class="button secondary sm" id="templateBtn" type="button">Template</button>
+            </div>
+            <div class="editor-toolbar-right">
+              <button class="button ghost sm" id="copyCodeBtn" type="button">Copy code</button>
+              <button class="button ghost sm" id="downloadBtn" type="button">Download</button>
+              <button class="button ghost sm" id="clearInputBtn" type="button">Clear</button>
+            </div>
+          </div>
+
+          <div class="editor-shell" id="editorShell">
+            <div class="editor-topbar">
+              <div class="traffic" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="topbar-label">
+                <span>Editing</span>
+                <span class="file-chip" id="editorFileChip">Project1.java</span>
+              </div>
+            </div>
+
+            <div class="editor-wrap">
+              <div class="line-numbers" id="lineNumbers" aria-hidden="true"></div>
+              <label for="code" class="visually-hidden">Paste Project1.java</label>
+              <textarea
+                id="code"
+                spellcheck="false"
+                autocapitalize="off"
+                autocomplete="off"
+                autocorrect="off"
+                wrap="off"
+                placeholder="// Paste your full Project1.java here
+// Then press Ctrl/Cmd + Enter to run tests"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="editor-footer" aria-label="Live code analysis">
+            <div class="meta-item">
+              <div class="meta-label">Detected class</div>
+              <div class="meta-value" id="classValue">—</div>
+              <div class="meta-note" id="classNote">Waiting for a public class declaration.</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">SIZE constant</div>
+              <div class="meta-value" id="sizeValue">—</div>
+              <div class="meta-note" id="sizeNote">Looks for <span class="mono">static final int SIZE</span>.</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Method check</div>
+              <div class="meta-value" id="methodValue">—</div>
+              <div class="meta-note" id="methodNote">Checks for <span class="mono">main</span> and <span class="mono">drawSpaceNeedle()</span>.</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Autosave</div>
+              <div class="meta-value" id="saveValue">Off</div>
+              <div class="meta-note" id="saveNote">Draft will save locally in your browser.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card glass output-card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Tester output</h2>
+              <p class="card-subtitle">
+                Exact output is preserved in a terminal-style panel so spacing differences are easy to inspect.
+              </p>
+            </div>
+            <div class="card-tools">
+              <span class="shortcut"><span class="kbd">⌘/Ctrl</span><span class="kbd">S</span>Download code</span>
+            </div>
+          </div>
+
+          <div class="terminal">
+            <div class="terminal-topbar">
+              <div class="traffic" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="topbar-label">
+                <span class="terminal-status" id="terminalStatus">Waiting for output…</span>
+              </div>
+              <div class="output-tools">
+                <button class="button secondary sm" id="copyOutputBtn" type="button">Copy output</button>
+                <button class="button ghost sm" id="clearOutputBtn" type="button">Clear output</button>
+              </div>
+            </div>
+            <pre id="out">(waiting...)</pre>
+          </div>
+        </article>
+      </section>
+
+      <aside class="subgrid">
+        <article class="card glass side-card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">How this tester works</h2>
+              <p class="card-subtitle">
+                Same concept as the original tool, just much more refined and much nicer to use.
+              </p>
+            </div>
+          </div>
+
+          <ul class="check-list">
+            <li>Detects <span class="mono">static final int SIZE</span> in your file.</li>
+            <li>Runs <span class="mono">Project1</span> exactly once through your backend.</li>
+            <li>Shows returned text with exact spacing preserved.</li>
+            <li>Helps you iterate faster with autosave, import, copy, and download actions.</li>
+          </ul>
+
+          <div class="quick-row">
+            <div class="quick-card">
+              <h4>Current filename</h4>
+              <div class="value" id="quickFile">Project1.java</div>
+              <div class="helper-text">Updated automatically when you import a file.</div>
+            </div>
+            <div class="quick-card">
+              <h4>Editor lines</h4>
+              <div class="value" id="quickLines">0</div>
+              <div class="helper-text">Live line count for large submissions.</div>
+            </div>
+          </div>
+        </article>
+
+
+        <article class="card glass side-card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Shortcuts</h2>
+              <p class="card-subtitle">Small details that make repeated testing much faster.</p>
+            </div>
+          </div>
+
+          <ul class="shortcut-list">
+            <li><span class="mono">Ctrl/Cmd + Enter</span> runs tests.</li>
+            <li><span class="mono">Ctrl/Cmd + S</span> downloads the current code as <span class="mono">Project1.java</span>.</li>
+            <li><span class="mono">Tab</span> inserts spaces inside the editor instead of moving focus away.</li>
+            <li>Drop a <span class="mono">.java</span> file anywhere over the editor to load it instantly.</li>
+          </ul>
+        </article>
+      </aside>
+    </main>
+
+    <footer class="footer-bar glass">
+      <div class="footer-row">
+        <div>
+          This tester is an unofficial helper tool designed and coded by TA Faiz Ahmed for TCSS 142.
+
+          <span class="mono">/run</span>,             Need help? Contact <b>Faiz Ahmed</b> (<a href="mailto:faizahm@uw.edu">faizahm@uw.edu</a>)
+.
+        </div>
+        <div class="footer-note">
+          Designed for Project 1! If tests hang, check for infinite loops or very heavy printing.
+        </div>
+      </div>
+    </footer>
   </div>
-  <div class="status">
-    <div class="dot" id="statusDot"></div>
-    <span id="statusText">Ready</span>
-  </div>
-</header>
 
-<div class="grid">
+  <input class="visually-hidden" type="file" id="fileInput" accept=".java,text/plain" />
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <section class="card">
-    <h3>How this tester works</h3>
-    <ul style="color:var(--muted);font-size:13px">
-      <li>Detects <code>static final int SIZE</code> in your file</li>
-      <li>Runs <code>Project1</code> exactly once</li>
-      <li>Compares every printed line to the reference</li>
-      <li>Stops at the <strong>first mismatch</strong></li>
-    </ul>
-    <p style="font-size:11px;color:var(--muted);margin-top:8px">
-      Instructor: Professor Xutong Liu · Built and maintained by TA Faiz Ahmed
-    </p>
-  </section>
+  <script>
+    const STORAGE_KEY = "tcss142-project1-beautiful-draft";
+    const DEFAULT_TEMPLATE = `/*
+ * Course: TCSS142 - Programming Principles
+ * File Name: Project1.java
+ * Assignment: Project 1
+ * Due Date: Oct/24/2025
+ * Instructor: Dr. Liu
+ */
 
-  <section class="card">
-    <div style="font-size:12px;margin-bottom:6px">
-      Paste <code>Project1.java</code>
-    </div>
-    <textarea id="code" placeholder="// Paste your full Project1.java here"></textarea>
+/**
+ * This program draws an ASCII-art representation of the Space Needle.
+ * The size of the figure is controlled by the SIZE constant.
+ *
+ * @author Faiz Ahmed
+ * @version 10/14/2025
+ */
+public class Project1 {
 
-    <div class="buttons">
-      <button class="primary" onclick="runTests()">▶ Run tests</button>
-      <button class="secondary" onclick="insertTemplate()">📋 Insert template</button>
-      <button class="ghost" onclick="clearInput()">🧾 Clear input</button>
-      <button class="ghost" onclick="clearOutput()">🧹 Clear output</button>
-    </div>
-  </section>
+\t/**
+\t * User-defined scale factor that controls the overall size
+\t * of the Space Needle figure.
+\t */
+\tpublic static final int SIZE = 2;
 
-</div>
+\t/**
+\t * Entry point of the program.
+\t * Calls helper methods to draw each section of the Space Needle
+\t * in the correct order.
+\t *
+\t * @param args command-line arguments (not used)
+\t */
+\tpublic static void main(String[] args) {
 
-<section class="card">
-  <div style="font-size:12px;margin-bottom:6px">
-    Tester output (exact spacing)
-  </div>
-  <pre id="out">(waiting...)</pre>
-</section>
+\t\t// Draw the spire
+\t\tdrawNeedle();
+\t}
 
-<div class="footer">
-  This page runs your code with <code>Project1LocalTester</code>.
-</div>
-
-</div>
-
-<script>
-const out=document.getElementById("out");
-const codeEl=document.getElementById("code");
-const statusText=document.getElementById("statusText");
-const statusDot=document.getElementById("statusDot");
-
-function setStatus(text,color){
-  statusText.textContent=text;
-  statusDot.style.background=color;
-}
-
-function insertTemplate(){
-  const tpl=`public class Project1 {
-
-    public static final int SIZE = 3;
-
-    public static void main(String[] args) {
-        drawSpaceNeedle();
-    }
-
-    public static void drawSpaceNeedle() {
-        // TODO
-    }
+\t/**
+\t * Draws the spire of the Space Needle.
+\t * This method is also reused to draw the support structure.
+\t */
+\tpublic static void drawNeedle() {
+\t}
 }`;
-  if(codeEl.value.trim() && !confirm("Replace current code with template?")) return;
-  codeEl.value=tpl;
-}
 
-async function runTests(){
-  if(!codeEl.value.trim()){
-    alert("Paste Project1.java first");
-    return;
-  }
-  setStatus("Running…","#38bdf8");
-  out.textContent="Running tests…";
+    const els = {
+      code: document.getElementById("code"),
+      out: document.getElementById("out"),
+      lineNumbers: document.getElementById("lineNumbers"),
+      editorShell: document.getElementById("editorShell"),
+      fileInput: document.getElementById("fileInput"),
+      toast: document.getElementById("toast"),
+      statusPill: document.getElementById("statusPill"),
+      statusText: document.getElementById("statusText"),
+      statusNote: document.getElementById("statusNote"),
+      terminalStatus: document.getElementById("terminalStatus"),
+      fileChip: document.getElementById("fileChip"),
+      editorFileChip: document.getElementById("editorFileChip"),
+      heroLines: document.getElementById("heroLines"),
+      heroChars: document.getElementById("heroChars"),
+      heroSize: document.getElementById("heroSize"),
+      quickFile: document.getElementById("quickFile"),
+      quickLines: document.getElementById("quickLines"),
+      classValue: document.getElementById("classValue"),
+      classNote: document.getElementById("classNote"),
+      sizeValue: document.getElementById("sizeValue"),
+      sizeNote: document.getElementById("sizeNote"),
+      methodValue: document.getElementById("methodValue"),
+      methodNote: document.getElementById("methodNote"),
+      saveValue: document.getElementById("saveValue"),
+      saveNote: document.getElementById("saveNote"),
+      runBtn: document.getElementById("runBtn"),
+      heroRunBtn: document.getElementById("heroRunBtn"),
+      importBtn: document.getElementById("importBtn"),
+      heroImportBtn: document.getElementById("heroImportBtn"),
+      templateBtn: document.getElementById("templateBtn"),
+      heroTemplateBtn: document.getElementById("heroTemplateBtn"),
+      clearInputBtn: document.getElementById("clearInputBtn"),
+      clearOutputBtn: document.getElementById("clearOutputBtn"),
+      copyOutputBtn: document.getElementById("copyOutputBtn"),
+      copyCodeBtn: document.getElementById("copyCodeBtn"),
+      downloadBtn: document.getElementById("downloadBtn"),
+      heroDownloadBtn: document.getElementById("heroDownloadBtn")
+    };
 
-  try{
-    const res=await fetch("/run",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({code:codeEl.value})
-    });
-    const text=await res.text();
-    out.textContent=text||"(no output)";
-    setStatus("Finished","#22c55e");
-  }catch(e){
-    out.textContent="Error: "+e;
-    setStatus("Error","#fb7185");
-  }
-}
+    const state = {
+      fileName: "Project1.java",
+      toastTimer: null,
+      saveTimer: null,
+      running: false,
+      lastSaved: null
+    };
 
-function clearInput(){
-  codeEl.value="";
-  setStatus("Ready","#22c55e");
-}
+    function setStatus(kind, text, note) {
+      els.statusPill.dataset.state = kind;
+      els.statusText.textContent = text;
+      if (note) els.statusNote.textContent = note;
+    }
 
-function clearOutput(){
-  out.textContent="(waiting...)";
-  setStatus("Ready","#22c55e");
-}
-</script>
+    function setToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      window.clearTimeout(state.toastTimer);
+      state.toastTimer = window.setTimeout(() => {
+        els.toast.classList.remove("show");
+      }, 2200);
+    }
+
+    function setFileName(name) {
+      state.fileName = name || "Project1.java";
+      els.fileChip.textContent = state.fileName;
+      els.editorFileChip.textContent = state.fileName;
+      els.quickFile.textContent = state.fileName;
+    }
+
+    function formatTime(date) {
+      return new Intl.DateTimeFormat(undefined, {
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit"
+      }).format(date);
+    }
+
+    function saveDraft() {
+      try {
+        localStorage.setItem(STORAGE_KEY, els.code.value);
+        state.lastSaved = new Date();
+        els.saveValue.textContent = "On";
+        els.saveNote.textContent = `Saved locally at ${formatTime(state.lastSaved)}.`;
+      } catch (error) {
+        els.saveValue.textContent = "Off";
+        els.saveNote.textContent = "Local storage is unavailable in this browser.";
+      }
+    }
+
+    function queueSave() {
+      window.clearTimeout(state.saveTimer);
+      state.saveTimer = window.setTimeout(saveDraft, 180);
+    }
+
+    function loadDraft() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          els.code.value = saved;
+          els.saveValue.textContent = "On";
+          els.saveNote.textContent = "Recovered your last local draft.";
+        }
+      } catch (error) {
+        els.saveValue.textContent = "Off";
+        els.saveNote.textContent = "Local draft recovery is unavailable here.";
+      }
+    }
+
+    function updateLineNumbers() {
+      const count = Math.max(1, els.code.value.split("\n").length);
+      let html = "";
+      for (let i = 1; i <= count; i += 1) {
+        html += `<span>${i}</span>`;
+      }
+      els.lineNumbers.innerHTML = html;
+      syncScroll();
+    }
+
+    function syncScroll() {
+      els.lineNumbers.scrollTop = els.code.scrollTop;
+    }
+
+    function updateAnalysis() {
+      const code = els.code.value;
+      const lines = code ? code.split("\n").length : 0;
+      const chars = code.length;
+      const classMatch = code.match(/public\s+class\s+([A-Za-z_$][\w$]*)/);
+      const sizeMatch = code.match(/static\s+final\s+int\s+SIZE\s*=\s*([^;]+);/i);
+      const hasMain = /public\s+static\s+void\s+main\s*\(/.test(code);
+      const hasNeedle = /drawSpaceNeedle\s*\(/.test(code);
+
+      els.heroLines.textContent = String(lines);
+      els.quickLines.textContent = String(lines);
+      els.heroChars.textContent = String(chars);
+
+      if (classMatch) {
+        els.classValue.textContent = classMatch[1];
+        els.classNote.textContent = classMatch[1] === "Project1"
+          ? "Class name looks correct for this tester."
+          : "Your backend may expect the class to be named Project1.";
+      } else {
+        els.classValue.textContent = "—";
+        els.classNote.textContent = "Waiting for a public class declaration.";
+      }
+
+      if (sizeMatch) {
+        const sizeRaw = sizeMatch[1].trim();
+        els.sizeValue.textContent = sizeRaw;
+        els.heroSize.textContent = sizeRaw;
+        els.sizeNote.textContent = "SIZE constant detected successfully.";
+      } else {
+        els.sizeValue.textContent = "—";
+        els.heroSize.textContent = "—";
+        els.sizeNote.textContent = "Could not find static final int SIZE yet.";
+      }
+
+      if (hasMain && hasNeedle) {
+        els.methodValue.textContent = "Ready";
+        els.methodNote.textContent = "main() and drawSpaceNeedle() were both detected.";
+      } else if (hasMain || hasNeedle) {
+        els.methodValue.textContent = "Partial";
+        els.methodNote.textContent = "One expected method was found, but one is still missing.";
+      } else {
+        els.methodValue.textContent = "Missing";
+        els.methodNote.textContent = "main() and drawSpaceNeedle() were not detected yet.";
+      }
+    }
+
+    function setOutput(text) {
+      els.out.textContent = text;
+      els.terminalStatus.textContent = text && text !== "(waiting...)"
+        ? "Latest tester response loaded"
+        : "Waiting for output…";
+    }
+
+    function setRunning(isRunning) {
+      state.running = isRunning;
+      [els.runBtn, els.heroRunBtn].forEach(btn => {
+        btn.disabled = isRunning;
+        btn.classList.toggle("loading", isRunning);
+      });
+    }
+
+    function evaluateResult(text, ok) {
+      const lower = text.toLowerCase();
+      if (!ok || lower.includes("exception") || lower.includes("traceback") || lower.startsWith("error:")) {
+        setStatus("error", "Error", "The backend returned an error or the request failed.");
+        return;
+      }
+      if (lower.includes("mismatch") || (lower.includes("expected") && lower.includes("actual"))) {
+        setStatus("warning", "Finished", "Test run completed, but the output suggests a mismatch or formatting difference.");
+        return;
+      }
+      setStatus("ready", "Finished", "Test run completed successfully. Review the output pane for exact details.");
+    }
+
+    async function runTests() {
+      const code = els.code.value;
+      if (!code.trim()) {
+        setToast("Paste Project1.java first.");
+        setStatus("warning", "Needs code", "Paste or import your full Project1.java before running tests.");
+        els.code.focus();
+        return;
+      }
+
+      setRunning(true);
+      setStatus("running", "Running…", "Sending your code to /run and waiting for tester output.");
+      setOutput("Running tests…");
+
+      try {
+        const res = await fetch("/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code })
+        });
+
+        const text = await res.text();
+        const finalText = text || "(no output)";
+        setOutput(finalText);
+        evaluateResult(finalText, res.ok);
+        if (!res.ok) {
+          els.terminalStatus.textContent = `Request failed with status ${res.status}`;
+        }
+      } catch (error) {
+        const message = `Error: ${error}`;
+        setOutput(message);
+        evaluateResult(message, false);
+      } finally {
+        setRunning(false);
+      }
+    }
+
+    function insertTemplate() {
+      if (els.code.value.trim() && !window.confirm("Replace the current code with the template?")) {
+        return;
+      }
+      els.code.value = DEFAULT_TEMPLATE;
+      setFileName("Project1.java");
+      updateLineNumbers();
+      updateAnalysis();
+      queueSave();
+      setToast("Template inserted.");
+      setStatus("ready", "Ready", "Template loaded. Edit your code and run the tester when ready.");
+      els.code.focus();
+    }
+
+    function clearInput() {
+      if (els.code.value && !window.confirm("Clear the editor?")) {
+        return;
+      }
+      els.code.value = "";
+      updateLineNumbers();
+      updateAnalysis();
+      queueSave();
+      setToast("Editor cleared.");
+      setStatus("ready", "Ready", "Editor cleared. Paste or import a new Project1.java file.");
+      els.code.focus();
+    }
+
+    function clearOutput() {
+      setOutput("(waiting...)");
+      setStatus("ready", "Ready", "Output cleared. Run the tester to generate new output.");
+      setToast("Output cleared.");
+    }
+
+    async function copyOutput() {
+      try {
+        await navigator.clipboard.writeText(els.out.textContent);
+        setToast("Tester output copied.");
+      } catch (error) {
+        setToast("Clipboard copy failed.");
+      }
+    }
+
+    async function copyCode() {
+      try {
+        await navigator.clipboard.writeText(els.code.value);
+        setToast("Code copied.");
+      } catch (error) {
+        setToast("Clipboard copy failed.");
+      }
+    }
+
+    function downloadCode() {
+      const blob = new Blob([els.code.value], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = state.fileName || "Project1.java";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      setToast(`Downloaded ${state.fileName || "Project1.java"}.`);
+    }
+
+    function openFilePicker() {
+      els.fileInput.click();
+    }
+
+    function importText(text, name) {
+      els.code.value = text.replace(/\r\n/g, "\n");
+      setFileName(name || "Project1.java");
+      updateLineNumbers();
+      updateAnalysis();
+      queueSave();
+      setStatus("ready", "Ready", "File imported successfully. Run tests whenever you are ready.");
+      setToast(`Loaded ${state.fileName}.`);
+      els.code.focus();
+    }
+
+    function importFile(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => importText(String(reader.result || ""), file.name || "Project1.java");
+      reader.onerror = () => setToast("Could not read that file.");
+      reader.readAsText(file);
+    }
+
+    function handleEditorKeydown(event) {
+      if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+        event.preventDefault();
+        runTests();
+        return;
+      }
+
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
+        event.preventDefault();
+        downloadCode();
+        return;
+      }
+
+      if (event.key === "Tab") {
+        event.preventDefault();
+        const start = els.code.selectionStart;
+        const end = els.code.selectionEnd;
+        const before = els.code.value.slice(0, start);
+        const after = els.code.value.slice(end);
+        els.code.value = `${before}    ${after}`;
+        els.code.selectionStart = els.code.selectionEnd = start + 4;
+        updateLineNumbers();
+        updateAnalysis();
+        queueSave();
+      }
+    }
+
+    function wireDragAndDrop() {
+      ["dragenter", "dragover"].forEach(type => {
+        els.editorShell.addEventListener(type, event => {
+          event.preventDefault();
+          els.editorShell.classList.add("dragover");
+        });
+      });
+
+      ["dragleave", "dragend"].forEach(type => {
+        els.editorShell.addEventListener(type, () => {
+          els.editorShell.classList.remove("dragover");
+        });
+      });
+
+      els.editorShell.addEventListener("drop", event => {
+        event.preventDefault();
+        els.editorShell.classList.remove("dragover");
+        const file = event.dataTransfer && event.dataTransfer.files ? event.dataTransfer.files[0] : null;
+        if (file) importFile(file);
+      });
+    }
+
+    function initSpotlight() {
+      window.addEventListener("mousemove", event => {
+        const x = `${event.clientX}px`;
+        const y = `${event.clientY}px`;
+        document.documentElement.style.setProperty("--mx", x);
+        document.documentElement.style.setProperty("--my", y);
+      }, { passive: true });
+    }
+
+    function bindEvents() {
+      els.code.addEventListener("input", () => {
+        updateLineNumbers();
+        updateAnalysis();
+        queueSave();
+      });
+
+      els.code.addEventListener("scroll", syncScroll, { passive: true });
+      els.code.addEventListener("keydown", handleEditorKeydown);
+
+      els.fileInput.addEventListener("change", event => {
+        importFile(event.target.files && event.target.files[0]);
+        event.target.value = "";
+      });
+
+      [els.runBtn, els.heroRunBtn].forEach(btn => btn.addEventListener("click", runTests));
+      [els.importBtn, els.heroImportBtn].forEach(btn => btn.addEventListener("click", openFilePicker));
+      [els.templateBtn, els.heroTemplateBtn].forEach(btn => btn.addEventListener("click", insertTemplate));
+      [els.downloadBtn, els.heroDownloadBtn].forEach(btn => btn.addEventListener("click", downloadCode));
+
+      els.clearInputBtn.addEventListener("click", clearInput);
+      els.clearOutputBtn.addEventListener("click", clearOutput);
+      els.copyOutputBtn.addEventListener("click", copyOutput);
+      els.copyCodeBtn.addEventListener("click", copyCode);
+    }
+
+    function init() {
+      loadDraft();
+      setFileName("Project1.java");
+      updateLineNumbers();
+      updateAnalysis();
+      bindEvents();
+      wireDragAndDrop();
+      initSpotlight();
+      if (!els.code.value.trim()) {
+        setOutput("(waiting...)");
+      }
+    }
+
+    init();
+  </script>
 </body>
 </html>
