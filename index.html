@@ -1059,7 +1059,7 @@ automatically with the value of a single class constant.
             <div class="meta-item">
               <div class="meta-label">Method check</div>
               <div class="meta-value" id="methodValue">—</div>
-              <div class="meta-note" id="methodNote">Checks for <span class="mono">main</span> and <span class="mono">drawSpaceNeedle()</span>.</div>
+              <div class="meta-note" id="methodNote">Checks for <span class="mono">main</span> and <span class="mono">drawNeedle()</span>.</div>
             </div>
             <div class="meta-item">
               <div class="meta-label">Autosave</div>
@@ -1345,7 +1345,7 @@ public class Project1 {
       const classMatch = code.match(/public\s+class\s+([A-Za-z_$][\w$]*)/);
       const sizeMatch = code.match(/static\s+final\s+int\s+SIZE\s*=\s*([^;]+);/i);
       const hasMain = /public\s+static\s+void\s+main\s*\(/.test(code);
-      const hasNeedle = /drawSpaceNeedle\s*\(/.test(code);
+      const hasNeedle = /drawNeedle\s*\(/.test(code);
 
       els.heroLines.textContent = String(lines);
       els.quickLines.textContent = String(lines);
@@ -1374,13 +1374,13 @@ public class Project1 {
 
       if (hasMain && hasNeedle) {
         els.methodValue.textContent = "Ready";
-        els.methodNote.textContent = "main() and drawSpaceNeedle() were both detected.";
+        els.methodNote.textContent = "main() and drawNeedle() were both detected.";
       } else if (hasMain || hasNeedle) {
         els.methodValue.textContent = "Partial";
         els.methodNote.textContent = "One expected method was found, but one is still missing.";
       } else {
         els.methodValue.textContent = "Missing";
-        els.methodNote.textContent = "main() and drawSpaceNeedle() were not detected yet.";
+        els.methodNote.textContent = "main() and drawNeedle() were not detected yet.";
       }
     }
 
