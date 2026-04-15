@@ -15,8 +15,8 @@ public class Project1LocalTester {
     private static final int CONTEXT = 2;
 
     // Safety timeouts.
-    private static final long COMPILE_TIMEOUT_SECONDS = 5;
-    private static final long RUN_TIMEOUT_SECONDS = 5;
+    private static final long COMPILE_TIMEOUT_SECONDS = 20;
+    private static final long RUN_TIMEOUT_SECONDS = 20;
 
     private static final String STUDENT_FILE = "Project1.java";
     private static final String STUDENT_CLASS = "Project1";
@@ -47,7 +47,7 @@ public class Project1LocalTester {
 
         RunResult run = runStudent();
         if (run.timedOut) {
-            reportTimeout();
+            reportTimeout(run.lines);
             return;
         }
 
@@ -86,22 +86,79 @@ public class Project1LocalTester {
         }
     }
 
+    private static class StreamCollector extends Thread {
+        private final InputStream in;
+        private final List<String> lines;
+        private Exception error;
+
+        private StreamCollector(InputStream in) {
+            this.in = in;
+            this.lines = Collections.synchronizedList(new ArrayList<>());
+            setDaemon(true);
+        }
+
+        @Override
+        public void run() {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    lines.add(line);
+                }
+            } catch (Exception e) {
+                error = e;
+            }
+        }
+
+        private List<String> getLines() {
+            synchronized (lines) {
+                return new ArrayList<>(lines);
+            }
+        }
+
+        private void rethrowIfNeeded() throws Exception {
+            if (error != null) {
+                throw error;
+            }
+        }
+    }
+
     /* ================== EXECUTION ================== */
 
     private static void forceCompile() throws Exception {
-        Process compile = new ProcessBuilder("javac", STUDENT_FILE)
-                .redirectErrorStream(true)
-                .start();
+        Process compile = startProcess(
+                new ProcessBuilder("javac", STUDENT_FILE).redirectErrorStream(true),
+                "compiler",
+                "Make sure Java is installed and that javac is on your PATH."
+        );
+
+        StreamCollector collector = new StreamCollector(compile.getInputStream());
+        collector.start();
 
         boolean finished = compile.waitFor(COMPILE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         if (!finished) {
             compile.destroyForcibly();
+            compile.waitFor(2, TimeUnit.SECONDS);
+            collector.join(2000);
+
+            List<String> messages = collector.getLines();
+
             System.out.println("❌ COMPILATION TIMED OUT");
             System.out.println("The file took too long to compile.");
+            System.out.println("This can happen if javac is misconfigured or if the tester is run from a slow/cloud-synced folder.");
+
+            if (!messages.isEmpty()) {
+                System.out.println("\nCompiler output captured before timeout:");
+                for (String line : messages) {
+                    System.out.println(line);
+                }
+            }
+
             System.exit(1);
         }
 
-        List<String> messages = readAllLines(compile.getInputStream());
+        collector.join(2000);
+        collector.rethrowIfNeeded();
+        List<String> messages = collector.getLines();
 
         if (compile.exitValue() != 0) {
             System.out.println("❌ COMPILATION FAILED");
@@ -117,30 +174,40 @@ public class Project1LocalTester {
     }
 
     private static RunResult runStudent() throws Exception {
-        Process p = new ProcessBuilder("java", STUDENT_CLASS)
-                .redirectErrorStream(true)
-                .start();
+        Process p = startProcess(
+                new ProcessBuilder("java", STUDENT_CLASS).redirectErrorStream(true),
+                "program",
+                "Make sure Java is installed and that the compiled class can be run with 'java " + STUDENT_CLASS + "'."
+        );
+
+        StreamCollector collector = new StreamCollector(p.getInputStream());
+        collector.start();
 
         boolean finished = p.waitFor(RUN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         if (!finished) {
             p.destroyForcibly();
-            List<String> partial = readAllLines(p.getInputStream());
-            return new RunResult(cleanLines(partial), -1, true);
+            p.waitFor(2, TimeUnit.SECONDS);
+            collector.join(2000);
+            return new RunResult(cleanLines(collector.getLines()), -1, true);
         }
 
-        List<String> output = readAllLines(p.getInputStream());
-        return new RunResult(cleanLines(output), p.exitValue(), false);
+        collector.join(2000);
+        collector.rethrowIfNeeded();
+        return new RunResult(cleanLines(collector.getLines()), p.exitValue(), false);
     }
 
-    private static List<String> readAllLines(InputStream in) throws Exception {
-        List<String> lines = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                lines.add(line);
-            }
+    private static Process startProcess(ProcessBuilder builder,
+                                        String label,
+                                        String helpMessage) throws Exception {
+        try {
+            return builder.start();
+        } catch (IOException e) {
+            System.out.println("❌ COULD NOT START " + label.toUpperCase());
+            System.out.println(helpMessage);
+            System.out.println("Details: " + e.getMessage());
+            System.exit(1);
+            return null;
         }
-        return lines;
     }
 
     private static List<String> cleanLines(List<String> lines) {
@@ -269,13 +336,20 @@ public class Project1LocalTester {
 
     /* ================== ERROR REPORTING ================== */
 
-    private static void reportTimeout() {
+    private static void reportTimeout(List<String> partialOutput) {
         System.out.println("❌ PROGRAM TIMED OUT");
         System.out.println("The program did not finish within " + RUN_TIMEOUT_SECONDS + " seconds.");
         System.out.println("Possible causes:");
         System.out.println("• An infinite loop");
         System.out.println("• A loop bound that never becomes false");
         System.out.println("• Waiting for keyboard input when this assignment should only print output");
+
+        if (!partialOutput.isEmpty()) {
+            System.out.println("\nProgram output captured before timeout:");
+            for (String line : partialOutput) {
+                System.out.println(line);
+            }
+        }
     }
 
     private static void reportRuntimeError(RunResult run) {
