@@ -3,27 +3,39 @@ import os, tempfile, subprocess, shutil, re
 
 app = Flask(__name__)
 
+# ================= ON/OFF SWITCH =================
+# The tester is OFF unless the host sets TESTER_ENABLED=true.
+# To bring it back: set TESTER_ENABLED=true in the service's environment
+# (Render -> Environment) and redeploy. To turn it off again, remove it.
+TESTER_ENABLED = os.environ.get("TESTER_ENABLED", "").strip().lower() in ("1", "true", "yes")
+OFFLINE_MSG = (
+    "This tester is currently offline.\n\n"
+    "It was run for a past TCSS 142 offering and has been switched off. "
+    "If you need it, contact Faiz."
+)
+
+# Limits that apply while the tester is on
+app.config["MAX_CONTENT_LENGTH"] = 200 * 1024        # one .java file, not an upload service
+JAVA_HEAP = os.environ.get("JAVA_MAX_HEAP", "256m")   # cap memory for student code
+MAX_OUTPUT_CHARS = 200_000                             # don't stream megabytes back
+
 # ================= CONFIG =================
 
 TESTER_FILE = "Project1LocalTester.java"
 REFERENCE_FILE = "SpaceNeedle.txt"
 RUN_TIMEOUT = int(os.environ.get("RUN_TIMEOUT", "30"))
 
-# ================= CORS =================
-
-@app.after_request
-def add_cors_headers(resp):
-    resp.headers["Access-Control-Allow-Origin"] = "*"
-    resp.headers["Access-Control-Allow-Headers"] = "Content-Type"
-    resp.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS, GET"
-    return resp
 
 # ================= ROUTES =================
 
-@app.route("/run", methods=["POST", "OPTIONS"])
+def _cap(text):
+    return text if len(text) <= MAX_OUTPUT_CHARS else text[:MAX_OUTPUT_CHARS] + "\n\n[output truncated]"
+
+
+@app.route("/run", methods=["POST"])
 def run_tests():
-    if request.method == "OPTIONS":
-        return Response(status=204)
+    if not TESTER_ENABLED:
+        return Response(OFFLINE_MSG, 503, mimetype="text/plain")
 
     data = request.get_json(silent=True) or {}
     code = data.get("code", "")
@@ -52,7 +64,7 @@ def run_tests():
 
         # Compile (tester compiles Project1 internally)
         compile_proc = subprocess.run(
-            ["javac", TESTER_FILE, "Project1.java"],
+            ["javac", f"-J-Xmx{JAVA_HEAP}", TESTER_FILE, "Project1.java"],
             cwd=tmp,
             capture_output=True,
             text=True,
@@ -69,7 +81,7 @@ def run_tests():
 
         # Run tester
         run_proc = subprocess.run(
-            ["java", "Project1LocalTester"],
+            ["java", f"-Xmx{JAVA_HEAP}", "Project1LocalTester"],
             cwd=tmp,
             capture_output=True,
             text=True,
@@ -80,7 +92,7 @@ def run_tests():
         if run_proc.stderr:
             output += "\n" + run_proc.stderr
 
-        return Response(output, 200, mimetype="text/plain")
+        return Response(_cap(output), 200, mimetype="text/plain")
 
     except subprocess.TimeoutExpired:
         return Response("⏱️ Execution timed out.", 200, mimetype="text/plain")

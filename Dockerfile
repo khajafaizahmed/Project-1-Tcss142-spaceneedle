@@ -13,4 +13,8 @@ RUN pip install --no-cache-dir flask
 
 ENV PORT=8080
 
+# Run as an unprivileged user so student code can't modify the app or system files
+RUN useradd --create-home --uid 10001 runner
+USER runner
+
 CMD ["python", "server.py"]
